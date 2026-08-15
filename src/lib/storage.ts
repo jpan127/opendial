@@ -24,6 +24,8 @@ export const STORAGE_KEYS = {
   showClock: 'opendial.showClock',
   showWeather: 'opendial.showWeather',
   forecastDays: 'opendial.forecastDays',
+  showTop10: 'opendial.showTop10',
+  showRecentlyClosed: 'opendial.showRecentlyClosed',
   railCollapsed: 'opendial.railCollapsed',
 } as const;
 
@@ -133,6 +135,14 @@ export function useShowWeather() {
 
 export function useForecastDays() {
   return useLocalState<number>(STORAGE_KEYS.forecastDays, DEFAULT_FORECAST_DAYS);
+}
+
+export function useShowTop10() {
+  return useLocalState<boolean>(STORAGE_KEYS.showTop10, true);
+}
+
+export function useShowRecentlyClosed() {
+  return useLocalState<boolean>(STORAGE_KEYS.showRecentlyClosed, true);
 }
 
 const DEFAULT_RAIL: RailCollapsed = { top10: false, closed: false };

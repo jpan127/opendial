@@ -59,6 +59,8 @@ export type BackupPayload = {
   showClock?: boolean;
   showWeather?: boolean;
   forecastDays?: number;
+  showTop10?: boolean;
+  showRecentlyClosed?: boolean;
 };
 
 export const DEFAULT_DIAL_SIZE = 148;

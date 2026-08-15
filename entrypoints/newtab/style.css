@@ -8,6 +8,10 @@
   min-height: 100vh;
 }
 
+.app:not(:has(.rail)) {
+  grid-template-columns: 1fr;
+}
+
 .main {
   display: flex;
   flex-direction: column;
@@ -716,12 +720,21 @@
   z-index: 6;
   display: flex;
   flex-direction: column;
+  gap: 8px;
   min-width: 280px;
   padding: 8px;
   border: 1px solid var(--od-border-strong);
   border-radius: var(--od-radius-md);
   background: var(--od-surface);
   box-shadow: var(--od-shadow);
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0 6px;
+  border-radius: var(--od-radius-sm);
+  background: color-mix(in srgb, var(--od-text) 5.5%, transparent);
 }
 
 .menu-action {
@@ -759,8 +772,8 @@
 }
 
 .settings-heading {
-  margin: 4px 0 0;
-  padding: 8px 10px 2px;
+  margin: 0;
+  padding: 6px 10px 2px;
   font-size: 0.7rem;
   font-weight: 650;
   letter-spacing: 0.08em;

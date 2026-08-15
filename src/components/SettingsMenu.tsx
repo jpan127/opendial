@@ -5,6 +5,8 @@ import {
   useForecastDays,
   useGreetingSize,
   useShowClock,
+  useShowRecentlyClosed,
+  useShowTop10,
   useShowWeather,
 } from '@/src/lib/storage';
 import type { BackupPayload } from '@/src/types';
@@ -24,6 +26,8 @@ export function SettingsMenu() {
   const [showClock, setShowClock] = useShowClock();
   const [showWeather, setShowWeather] = useShowWeather();
   const [forecastDays, setForecastDays] = useForecastDays();
+  const [showTop10, setShowTop10] = useShowTop10();
+  const [showRecentlyClosed, setShowRecentlyClosed] = useShowRecentlyClosed();
   const fileRef = useRef<HTMLInputElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -73,78 +77,104 @@ export function SettingsMenu() {
       </button>
       {open ? (
         <div className="settings-menu">
-          <p className="settings-heading">Widgets</p>
-          <SwitchRow
-            label="Clock"
-            on={showClock}
-            onToggle={() => setShowClock(!showClock)}
-          />
-          <SwitchRow
-            label="Weather"
-            on={showWeather}
-            onToggle={() => setShowWeather(!showWeather)}
-          />
-          <div className={`seg-block${showWeather ? '' : ' is-disabled'}`}>
-            <div className="seg-label">
-              <span>Forecast</span>
-              <span className="size-hint">
-                {forecastDays === 0 ? 'Today only' : `Next ${forecastDays} days`}
+          <section className="settings-group">
+            <p className="settings-heading">Widgets</p>
+            <SwitchRow
+              label="Clock"
+              on={showClock}
+              onToggle={() => setShowClock(!showClock)}
+            />
+            <SwitchRow
+              label="Weather"
+              on={showWeather}
+              onToggle={() => setShowWeather(!showWeather)}
+            />
+            <div className={`seg-block${showWeather ? '' : ' is-disabled'}`}>
+              <div className="seg-label">
+                <span>Forecast</span>
+                <span className="size-hint">
+                  {forecastDays === 0 ? 'Today only' : `Next ${forecastDays} days`}
+                </span>
+              </div>
+              <div className="seg" role="radiogroup" aria-label="Forecast days">
+                {Array.from({ length: MAX_FORECAST_DAYS - MIN_FORECAST_DAYS + 1 }, (_, index) => {
+                  const days = MIN_FORECAST_DAYS + index;
+                  return (
+                    <button
+                      key={days}
+                      type="button"
+                      role="radio"
+                      aria-checked={forecastDays === days}
+                      className={forecastDays === days ? 'is-on' : ''}
+                      disabled={!showWeather}
+                      onClick={() => setForecastDays(days)}
+                    >
+                      {days === 0 ? 'Today' : days}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+          <section className="settings-group">
+            <p className="settings-heading">Layout</p>
+            <label className="size-row">
+              <span className="seg-label">
+                Greeting size
+                <span className="size-hint">{greetingSize}px</span>
               </span>
-            </div>
-            <div className="seg" role="radiogroup" aria-label="Forecast days">
-              {Array.from({ length: MAX_FORECAST_DAYS - MIN_FORECAST_DAYS + 1 }, (_, index) => {
-                const days = MIN_FORECAST_DAYS + index;
-                return (
-                  <button
-                    key={days}
-                    type="button"
-                    role="radio"
-                    aria-checked={forecastDays === days}
-                    className={forecastDays === days ? 'is-on' : ''}
-                    disabled={!showWeather}
-                    onClick={() => setForecastDays(days)}
-                  >
-                    {days === 0 ? 'Today' : days}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <p className="settings-heading">Layout</p>
-          <label className="size-row">
-            Welcome size
-            <input
-              type="range"
-              min={MIN_GREETING_SIZE}
-              max={MAX_GREETING_SIZE}
-              value={greetingSize}
-              onChange={(event) => setGreetingSize(Number(event.target.value))}
+              <input
+                type="range"
+                min={MIN_GREETING_SIZE}
+                max={MAX_GREETING_SIZE}
+                value={greetingSize}
+                onChange={(event) => setGreetingSize(Number(event.target.value))}
+              />
+            </label>
+            <label className="size-row">
+              <span className="seg-label">
+                Tile size
+                <span className="size-hint">{dialSize}px</span>
+              </span>
+              <input
+                type="range"
+                min={MIN_DIAL_SIZE}
+                max={MAX_DIAL_SIZE}
+                value={dialSize}
+                onChange={(event) => setDialSize(Number(event.target.value))}
+              />
+            </label>
+          </section>
+          <section className="settings-group">
+            <p className="settings-heading">Sidebar</p>
+            <SwitchRow
+              label="Top 10"
+              on={showTop10}
+              onToggle={() => setShowTop10(!showTop10)}
             />
-          </label>
-          <label className="size-row">
-            Tile size
-            <input
-              type="range"
-              min={MIN_DIAL_SIZE}
-              max={MAX_DIAL_SIZE}
-              value={dialSize}
-              onChange={(event) => setDialSize(Number(event.target.value))}
+            <SwitchRow
+              label="Recently closed"
+              on={showRecentlyClosed}
+              onToggle={() => setShowRecentlyClosed(!showRecentlyClosed)}
             />
-          </label>
-          <button
-            type="button"
-            className="menu-action"
-            onClick={async () => {
-              const payload = await exportBackup();
-              downloadBackup(payload);
-              setOpen(false);
-            }}
-          >
-            Export backup
-          </button>
-          <button type="button" className="menu-action" onClick={() => fileRef.current?.click()}>
-            Import backup
-          </button>
+          </section>
+          <section className="settings-group">
+            <p className="settings-heading">Backup</p>
+            <button
+              type="button"
+              className="menu-action"
+              onClick={async () => {
+                const payload = await exportBackup();
+                downloadBackup(payload);
+                setOpen(false);
+              }}
+            >
+              Export backup
+            </button>
+            <button type="button" className="menu-action" onClick={() => fileRef.current?.click()}>
+              Import backup
+            </button>
+          </section>
           <input
             ref={fileRef}
             type="file"

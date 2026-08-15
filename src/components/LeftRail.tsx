@@ -3,7 +3,7 @@ import { browser } from 'wxt/browser';
 import { faviconUrl, formatCount, hostnameOf, monogram, relativeTime } from '@/src/lib/format';
 import { getMostVisited, type MostVisitedItem } from '@/src/lib/mostVisited';
 import { getRecentlyClosed, restoreClosed, type ClosedEntry } from '@/src/lib/sessions';
-import { useRailCollapsed } from '@/src/lib/storage';
+import { useRailCollapsed, useShowRecentlyClosed, useShowTop10 } from '@/src/lib/storage';
 import type { Dial } from '@/src/types';
 
 type Props = {
@@ -14,17 +14,21 @@ export function LeftRail({ dials }: Props) {
   const [visited, setVisited] = useState<MostVisitedItem[]>([]);
   const [closed, setClosed] = useState<ClosedEntry[]>([]);
   const [collapsed, setCollapsed] = useRailCollapsed();
+  const [showTop10] = useShowTop10();
+  const [showRecentlyClosed] = useShowRecentlyClosed();
 
   useEffect(() => {
+    if (!showTop10) return;
     const hidden = new Set(
       dials
         .map((dial) => hostnameOf(dial.url))
         .filter((host): host is string => Boolean(host)),
     );
     void getMostVisited(hidden).then(setVisited);
-  }, [dials]);
+  }, [dials, showTop10]);
 
   useEffect(() => {
+    if (!showRecentlyClosed) return;
     const load = () => {
       void getRecentlyClosed().then(setClosed);
     };
@@ -32,57 +36,63 @@ export function LeftRail({ dials }: Props) {
     const listener = () => load();
     browser.sessions.onChanged.addListener(listener);
     return () => browser.sessions.onChanged.removeListener(listener);
-  }, []);
+  }, [showRecentlyClosed]);
+
+  if (!showTop10 && !showRecentlyClosed) return null;
 
   return (
     <aside className="rail">
-      <RailSection
-        title="Top 10"
-        open={!collapsed.top10}
-        fill={false}
-        onToggle={() => setCollapsed({ ...collapsed, top10: !collapsed.top10 })}
-      >
-        {visited.length === 0 ? (
-          <li className="rail-empty">Browsing history will show up here</li>
-        ) : (
-          visited.map((item) => (
-            <li key={item.host}>
-              <a className="rail-row" href={item.url} title={item.host}>
-                <Favicon url={item.url} label={item.host} />
-                <span className="rail-title">{item.host}</span>
-                {item.visits != null ? (
-                  <span className="rail-meta">{formatCount(item.visits)}</span>
-                ) : null}
-              </a>
-            </li>
-          ))
-        )}
-      </RailSection>
-      <RailSection
-        title="Recently closed"
-        open={!collapsed.closed}
-        fill
-        onToggle={() => setCollapsed({ ...collapsed, closed: !collapsed.closed })}
-      >
-        {closed.length === 0 ? (
-          <li className="rail-empty">Closed tabs will show up here</li>
-        ) : (
-          closed.map((entry) => (
-            <li key={entry.sessionId}>
-              <button
-                type="button"
-                className="rail-row"
-                onClick={() => void restoreClosed(entry.sessionId)}
-                title={entry.title}
-              >
-                <Favicon url={entry.url} label={entry.title} />
-                <span className="rail-title">{entry.title}</span>
-                <span className="rail-meta">{relativeTime(entry.lastModified)}</span>
-              </button>
-            </li>
-          ))
-        )}
-      </RailSection>
+      {showTop10 ? (
+        <RailSection
+          title="Top 10"
+          open={!collapsed.top10}
+          fill={!showRecentlyClosed}
+          onToggle={() => setCollapsed({ ...collapsed, top10: !collapsed.top10 })}
+        >
+          {visited.length === 0 ? (
+            <li className="rail-empty">Browsing history will show up here</li>
+          ) : (
+            visited.map((item) => (
+              <li key={item.host}>
+                <a className="rail-row" href={item.url} title={item.host}>
+                  <Favicon url={item.url} label={item.host} />
+                  <span className="rail-title">{item.host}</span>
+                  {item.visits != null ? (
+                    <span className="rail-meta">{formatCount(item.visits)}</span>
+                  ) : null}
+                </a>
+              </li>
+            ))
+          )}
+        </RailSection>
+      ) : null}
+      {showRecentlyClosed ? (
+        <RailSection
+          title="Recently closed"
+          open={!collapsed.closed}
+          fill
+          onToggle={() => setCollapsed({ ...collapsed, closed: !collapsed.closed })}
+        >
+          {closed.length === 0 ? (
+            <li className="rail-empty">Closed tabs will show up here</li>
+          ) : (
+            closed.map((entry) => (
+              <li key={entry.sessionId}>
+                <button
+                  type="button"
+                  className="rail-row"
+                  onClick={() => void restoreClosed(entry.sessionId)}
+                  title={entry.title}
+                >
+                  <Favicon url={entry.url} label={entry.title} />
+                  <span className="rail-title">{entry.title}</span>
+                  <span className="rail-meta">{relativeTime(entry.lastModified)}</span>
+                </button>
+              </li>
+            ))
+          )}
+        </RailSection>
+      ) : null}
     </aside>
   );
 }
