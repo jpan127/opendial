@@ -66,7 +66,6 @@ export default function App() {
           <SearchBar engine={engine} onEngineChange={setEngine} />
         </div>
         <DialGrid dials={dials} onChange={setDials} />
-        {showWeather ? <p className="attribution">Weather by Open-Meteo</p> : null}
       </main>
     </div>
   );
