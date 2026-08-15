@@ -16,9 +16,11 @@
 :root {
   --od-font-ui: "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
   --od-font-greeting: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  --od-greeting-size: clamp(2.4rem, 5vw, 3.6rem);
+  --od-greeting-size: 58px;
   --od-clock-size: 1.85rem;
+  --od-now-hero: 2.4rem;
   --od-weather-size: 1.2rem;
+  --od-icon-size: 48px;
   --od-rail-width: 268px;
   --od-dial-size: 148px;
   --od-dial-gap: 22px;
@@ -35,9 +37,10 @@
   --od-space-4: 16px;
   --od-space-5: 24px;
   --od-space-6: 32px;
-  --od-header-height: 52px;
+  --od-header-height: 72px;
   --od-grain-opacity: 0.04;
   --od-shadow: 0 10px 40px color-mix(in srgb, var(--od-text) 8%, transparent);
+  --od-hover-glow: color-mix(in srgb, var(--od-accent) 55%, transparent);
 }
 
 :root[data-theme='dark'] {
@@ -57,6 +60,7 @@
   --od-search-bg: rgb(18 21 28 / 0.86);
   --od-scrollbar: rgb(255 255 255 / 0.28);
   --od-scrollbar-hover: rgb(255 255 255 / 0.45);
+  --od-hover-glow: rgb(139 156 255 / 0.55);
 }
 
 :root[data-theme='light'] {
@@ -76,6 +80,7 @@
   --od-search-bg: rgb(255 255 255 / 0.9);
   --od-scrollbar: rgb(20 24 32 / 0.35);
   --od-scrollbar-hover: rgb(20 24 32 / 0.55);
+  --od-hover-glow: rgb(61 78 204 / 0.32);
 }
 
 *,
