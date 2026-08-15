@@ -20,6 +20,7 @@ export default defineConfig({
     ],
     host_permissions: [
       'https://api.open-meteo.com/*',
+      'https://air-quality-api.open-meteo.com/*',
       'https://geocoding-api.open-meteo.com/*',
       'https://api.bigdatacloud.net/*',
       'https://gemini.google.com/*',

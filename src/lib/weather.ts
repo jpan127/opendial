@@ -1,5 +1,5 @@
 import { browser } from 'wxt/browser';
-import type { WeatherCache } from '@/src/types';
+import type { DailyForecast, WeatherCache } from '@/src/types';
 import { STORAGE_KEYS, getLocal, setLocal } from '@/src/lib/storage';
 
 const CACHE_MS = 20 * 60 * 1000;
@@ -39,6 +39,15 @@ export function formatTemp(celsius: number, unit: 'c' | 'f'): string {
   return `${Math.round(celsius)}°`;
 }
 
+export function aqiMeta(aqi: number): { label: string; tone: string } {
+  if (aqi <= 50) return { label: 'Good', tone: 'good' };
+  if (aqi <= 100) return { label: 'Moderate', tone: 'moderate' };
+  if (aqi <= 150) return { label: 'Sensitive', tone: 'sensitive' };
+  if (aqi <= 200) return { label: 'Unhealthy', tone: 'unhealthy' };
+  if (aqi <= 300) return { label: 'Very unhealthy', tone: 'very-unhealthy' };
+  return { label: 'Hazardous', tone: 'hazardous' };
+}
+
 function formatPlace(parts: Array<string | undefined>): string {
   const unique: string[] = [];
   for (const part of parts) {
@@ -46,6 +55,19 @@ function formatPlace(parts: Array<string | undefined>): string {
     if (trimmed && !unique.includes(trimmed)) unique.push(trimmed);
   }
   return unique.join(', ');
+}
+
+async function fetchAqi(latitude: number, longitude: number): Promise<number | undefined> {
+  const url = new URL('https://air-quality-api.open-meteo.com/v1/air-quality');
+  url.searchParams.set('latitude', String(latitude));
+  url.searchParams.set('longitude', String(longitude));
+  url.searchParams.set('current', 'us_aqi');
+  url.searchParams.set('timezone', 'auto');
+  const response = await fetch(url);
+  if (!response.ok) return undefined;
+  const data = await response.json();
+  const value = data.current?.us_aqi;
+  return typeof value === 'number' ? Math.round(value) : undefined;
 }
 
 async function fetchForecast(
@@ -57,16 +79,38 @@ async function fetchForecast(
   url.searchParams.set('latitude', String(latitude));
   url.searchParams.set('longitude', String(longitude));
   url.searchParams.set('current', 'temperature_2m,weather_code');
+  url.searchParams.set(
+    'daily',
+    'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max',
+  );
+  url.searchParams.set('forecast_days', '7');
   url.searchParams.set('timezone', 'auto');
 
-  const response = await fetch(url);
-  if (!response.ok) {
+  const [forecastRes, aqi] = await Promise.all([
+    fetch(url),
+    fetchAqi(latitude, longitude).catch(() => undefined),
+  ]);
+  if (!forecastRes.ok) {
     throw new Error('Weather request failed');
   }
-  const data = await response.json();
+  const data = await forecastRes.json();
+  const times: string[] = data.daily?.time ?? [];
+  const daily: DailyForecast[] = times.map((date, index) => ({
+    date,
+    weatherCode: data.daily.weather_code?.[index] ?? data.current.weather_code,
+    highC: data.daily.temperature_2m_max?.[index] ?? data.current.temperature_2m,
+    lowC: data.daily.temperature_2m_min?.[index] ?? data.current.temperature_2m,
+    precipChance: data.daily.precipitation_probability_max?.[index],
+  }));
   const cache: WeatherCache = {
     temperatureC: data.current.temperature_2m,
     weatherCode: data.current.weather_code,
+    highC: daily[0]?.highC ?? data.current.temperature_2m,
+    lowC: daily[0]?.lowC ?? data.current.temperature_2m,
+    precipChance: daily[0]?.precipChance,
+    uvIndex: data.daily?.uv_index_max?.[0],
+    aqi,
+    daily,
     cityLabel,
     latitude,
     longitude,
@@ -96,7 +140,7 @@ export async function geocodeCity(name: string): Promise<{
   return {
     latitude: first.latitude,
     longitude: first.longitude,
-    label: formatPlace([first.name, first.admin1, first.country]),
+    label: formatPlace([first.name, first.admin1]),
   };
 }
 
@@ -110,12 +154,9 @@ async function reverseGeocode(latitude: number, longitude: number): Promise<stri
     throw new Error('Reverse geocode failed');
   }
   const data = await response.json();
-  const label = formatPlace([
-    data.city || data.locality,
-    data.principalSubdivision,
-    data.countryName,
-  ]);
-  return label || 'Local';
+  const region =
+    data.principalSubdivisionCode?.replace(/^[A-Z]{2}-/, '') || data.principalSubdivision;
+  return formatPlace([data.city || data.locality, region]) || 'Local';
 }
 
 function getPosition(): Promise<GeolocationPosition> {
@@ -127,11 +168,20 @@ function getPosition(): Promise<GeolocationPosition> {
   });
 }
 
+function cacheComplete(cache: WeatherCache | null): boolean {
+  return (
+    cache != null &&
+    typeof cache.highC === 'number' &&
+    typeof cache.lowC === 'number' &&
+    (cache.daily?.length ?? 0) >= 7
+  );
+}
+
 export async function loadWeather(force = false): Promise<WeatherCache> {
   const cached = await getLocal<WeatherCache | null>(STORAGE_KEYS.weather, null);
   const needsPlace = cached?.cityLabel === 'Local' || !cached?.cityLabel;
-  if (!force && cached && Date.now() - cached.fetchedAt < CACHE_MS && !needsPlace) {
-    return cached;
+  if (!force && cacheComplete(cached) && Date.now() - cached!.fetchedAt < CACHE_MS && !needsPlace) {
+    return cached!;
   }
 
   const savedCity = await getLocal<string>(STORAGE_KEYS.weatherCity, '');
