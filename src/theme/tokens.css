@@ -1,0 +1,125 @@
+/*
+  OpenDial visual tokens
+  ----------------------
+  Restyle the new tab page from this file. Components should only
+  reference var(--od-*). Both themes are defined below.
+
+  Quick knobs:
+    --od-bg / --od-glow     page background + radial wash
+    --od-grain-opacity      0 to disable the noise overlay
+    --od-rail-width         left sidebar width
+    --od-dial-size          minimum tile size
+    --od-font-greeting      the "hello {name}" face
+    --od-radius-*           corner roundness
+*/
+
+:root {
+  --od-font-ui: "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+  --od-font-greeting: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --od-greeting-size: clamp(2.4rem, 5vw, 3.6rem);
+  --od-rail-width: 268px;
+  --od-dial-size: 108px;
+  --od-dial-gap: 18px;
+  --od-dial-max-width: 720px;
+  --od-search-width: min(560px, 92%);
+  --od-search-height: 44px;
+  --od-radius-sm: 8px;
+  --od-radius-md: 12px;
+  --od-radius-lg: 18px;
+  --od-radius-pill: 999px;
+  --od-space-1: 4px;
+  --od-space-2: 8px;
+  --od-space-3: 12px;
+  --od-space-4: 16px;
+  --od-space-5: 24px;
+  --od-space-6: 32px;
+  --od-header-height: 52px;
+  --od-grain-opacity: 0.04;
+  --od-shadow: 0 10px 40px color-mix(in srgb, var(--od-text) 8%, transparent);
+}
+
+:root[data-theme='dark'] {
+  --od-bg: #07090d;
+  --od-glow: rgb(72 82 140 / 0.28);
+  --od-surface: #12151c;
+  --od-surface-hover: #1a1f2a;
+  --od-text: #e8eaf0;
+  --od-text-muted: #8b93a7;
+  --od-text-faint: #5c6478;
+  --od-border: rgb(255 255 255 / 0.08);
+  --od-border-strong: rgb(255 255 255 / 0.14);
+  --od-accent: #8b9cff;
+  --od-accent-text: #07090d;
+  --od-danger: #ff7b7b;
+  --od-tile: #161a22;
+  --od-search-bg: rgb(18 21 28 / 0.86);
+}
+
+:root[data-theme='light'] {
+  --od-bg: #eef0f4;
+  --od-glow: rgb(140 170 210 / 0.35);
+  --od-surface: #ffffff;
+  --od-surface-hover: #f4f6fa;
+  --od-text: #1a1d24;
+  --od-text-muted: #5c6474;
+  --od-text-faint: #8a91a0;
+  --od-border: rgb(16 22 32 / 0.08);
+  --od-border-strong: rgb(16 22 32 / 0.14);
+  --od-accent: #3d4ecc;
+  --od-accent-text: #ffffff;
+  --od-danger: #c43c3c;
+  --od-tile: #ffffff;
+  --od-search-bg: rgb(255 255 255 / 0.9);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--od-font-ui);
+  color: var(--od-text);
+  background-color: var(--od-bg);
+  background-image: radial-gradient(
+    ellipse 80% 52% at 58% 28%,
+    var(--od-glow),
+    transparent 70%
+  );
+  background-attachment: fixed;
+}
+
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: var(--od-grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
