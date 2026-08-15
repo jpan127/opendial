@@ -1,0 +1,37 @@
+import type { Dial } from '@/src/types';
+
+export function sortedDials(dials: Dial[]): Dial[] {
+  return [...dials].sort((a, b) => a.order - b.order);
+}
+
+export function nextOrder(dials: Dial[]): number {
+  return dials.reduce((max, dial) => Math.max(max, dial.order), -1) + 1;
+}
+
+export function reorderDials(dials: Dial[], fromId: string, toId: string): Dial[] {
+  const ordered = sortedDials(dials);
+  const fromIndex = ordered.findIndex((dial) => dial.id === fromId);
+  const toIndex = ordered.findIndex((dial) => dial.id === toId);
+  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return dials;
+
+  const [moved] = ordered.splice(fromIndex, 1);
+  if (!moved) return dials;
+  ordered.splice(toIndex, 0, moved);
+  return ordered.map((dial, index) => ({ ...dial, order: index }));
+}
+
+export function createDial(input: {
+  name: string;
+  url: string;
+  icon: Dial['icon'];
+  order: number;
+}): Dial {
+  return {
+    id: crypto.randomUUID(),
+    name: input.name.trim(),
+    url: input.url,
+    icon: input.icon,
+    order: input.order,
+    createdAt: Date.now(),
+  };
+}
