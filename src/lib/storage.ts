@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import type {
   Dial,
   Greeting,
+  RailCollapsed,
   SearchEngine,
   TempUnit,
   ThemeName,
@@ -19,6 +20,7 @@ export const STORAGE_KEYS = {
   weather: 'opendial.weather',
   weatherCity: 'opendial.weatherCity',
   dialSize: 'opendial.dialSize',
+  railCollapsed: 'opendial.railCollapsed',
 } as const;
 
 export const DEFAULT_GREETING: Greeting = {
@@ -111,4 +113,10 @@ export function useWeatherCity() {
 
 export function useDialSize() {
   return useLocalState<number>(STORAGE_KEYS.dialSize, DEFAULT_DIAL_SIZE);
+}
+
+const DEFAULT_RAIL: RailCollapsed = { top10: false, closed: false };
+
+export function useRailCollapsed() {
+  return useLocalState<RailCollapsed>(STORAGE_KEYS.railCollapsed, DEFAULT_RAIL);
 }

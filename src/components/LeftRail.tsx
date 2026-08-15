@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { browser } from 'wxt/browser';
 import { faviconUrl, formatCount, hostnameOf, monogram, relativeTime } from '@/src/lib/format';
 import { getMostVisited, type MostVisitedItem } from '@/src/lib/mostVisited';
 import { getRecentlyClosed, restoreClosed, type ClosedEntry } from '@/src/lib/sessions';
+import { useRailCollapsed } from '@/src/lib/storage';
 import type { Dial } from '@/src/types';
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 export function LeftRail({ dials }: Props) {
   const [visited, setVisited] = useState<MostVisitedItem[]>([]);
   const [closed, setClosed] = useState<ClosedEntry[]>([]);
+  const [collapsed, setCollapsed] = useRailCollapsed();
 
   useEffect(() => {
     const hidden = new Set(
@@ -34,50 +36,101 @@ export function LeftRail({ dials }: Props) {
 
   return (
     <aside className="rail">
-      <section className="rail-section">
-        <h2>Most visited</h2>
-        <ul>
-          {visited.length === 0 ? (
-            <li className="rail-empty">Browsing history will show up here</li>
-          ) : (
-            visited.map((item) => (
-              <li key={item.host}>
-                <a className="rail-row" href={item.url} title={item.host}>
-                  <Favicon url={item.url} label={item.host} />
-                  <span className="rail-title">{item.host}</span>
-                  {item.visits != null ? (
-                    <span className="rail-meta">{formatCount(item.visits)}</span>
-                  ) : null}
-                </a>
-              </li>
-            ))
-          )}
-        </ul>
-      </section>
-      <section className="rail-section">
-        <h2>Recently closed</h2>
-        <ul>
-          {closed.length === 0 ? (
-            <li className="rail-empty">Closed tabs will show up here</li>
-          ) : (
-            closed.map((entry) => (
-              <li key={entry.sessionId}>
-                <button
-                  type="button"
-                  className="rail-row"
-                  onClick={() => void restoreClosed(entry.sessionId)}
-                  title={entry.title}
-                >
-                  <Favicon url={entry.url} label={entry.title} />
-                  <span className="rail-title">{entry.title}</span>
-                  <span className="rail-meta">{relativeTime(entry.lastModified)}</span>
-                </button>
-              </li>
-            ))
-          )}
-        </ul>
-      </section>
+      <RailSection
+        title="Top 10"
+        open={!collapsed.top10}
+        fill={false}
+        onToggle={() => setCollapsed({ ...collapsed, top10: !collapsed.top10 })}
+      >
+        {visited.length === 0 ? (
+          <li className="rail-empty">Browsing history will show up here</li>
+        ) : (
+          visited.map((item) => (
+            <li key={item.host}>
+              <a className="rail-row" href={item.url} title={item.host}>
+                <Favicon url={item.url} label={item.host} />
+                <span className="rail-title">{item.host}</span>
+                {item.visits != null ? (
+                  <span className="rail-meta">{formatCount(item.visits)}</span>
+                ) : null}
+              </a>
+            </li>
+          ))
+        )}
+      </RailSection>
+      <RailSection
+        title="Recently closed"
+        open={!collapsed.closed}
+        fill
+        onToggle={() => setCollapsed({ ...collapsed, closed: !collapsed.closed })}
+      >
+        {closed.length === 0 ? (
+          <li className="rail-empty">Closed tabs will show up here</li>
+        ) : (
+          closed.map((entry) => (
+            <li key={entry.sessionId}>
+              <button
+                type="button"
+                className="rail-row"
+                onClick={() => void restoreClosed(entry.sessionId)}
+                title={entry.title}
+              >
+                <Favicon url={entry.url} label={entry.title} />
+                <span className="rail-title">{entry.title}</span>
+                <span className="rail-meta">{relativeTime(entry.lastModified)}</span>
+              </button>
+            </li>
+          ))
+        )}
+      </RailSection>
     </aside>
+  );
+}
+
+function RailSection({
+  title,
+  open,
+  fill,
+  onToggle,
+  children,
+}: {
+  title: string;
+  open: boolean;
+  fill: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  const listRef = useRef<HTMLUListElement>(null);
+  const [scrolling, setScrolling] = useState(false);
+  const timer = useRef<number>(0);
+
+  return (
+    <section className={`rail-section${fill && open ? ' fill' : ''}${open ? '' : ' collapsed'}`}>
+      <button
+        type="button"
+        className="rail-toggle"
+        aria-expanded={open}
+        onClick={onToggle}
+      >
+        <span>{title}</span>
+        <span className="rail-chevron" aria-hidden>
+          {open ? '▾' : '▸'}
+        </span>
+      </button>
+      {open ? (
+        <ul
+          ref={listRef}
+          className={`rail-list${scrolling ? ' is-scrolling' : ''}`}
+          onScroll={() => {
+            setScrolling(true);
+            window.clearTimeout(timer.current);
+            timer.current = window.setTimeout(() => setScrolling(false), 700);
+          }}
+        >
+          {children}
+        </ul>
+      ) : null}
+    </section>
   );
 }
 

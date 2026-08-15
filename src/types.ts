@@ -46,3 +46,8 @@ export type BackupPayload = {
 export const DEFAULT_DIAL_SIZE = 148;
 export const MIN_DIAL_SIZE = 110;
 export const MAX_DIAL_SIZE = 200;
+
+export type RailCollapsed = {
+  top10: boolean;
+  closed: boolean;
+};

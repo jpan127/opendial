@@ -55,6 +55,8 @@
   --od-danger: #ff7b7b;
   --od-tile: #161a22;
   --od-search-bg: rgb(18 21 28 / 0.86);
+  --od-scrollbar: rgb(255 255 255 / 0.28);
+  --od-scrollbar-hover: rgb(255 255 255 / 0.45);
 }
 
 :root[data-theme='light'] {
@@ -72,6 +74,8 @@
   --od-danger: #c43c3c;
   --od-tile: #ffffff;
   --od-search-bg: rgb(255 255 255 / 0.9);
+  --od-scrollbar: rgb(20 24 32 / 0.35);
+  --od-scrollbar-hover: rgb(20 24 32 / 0.55);
 }
 
 *,

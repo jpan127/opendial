@@ -64,8 +64,8 @@ Other scripts:
   - Google: `google.com/search?q=`
   - ChatGPT / Gemini: OpenDial opens the site and fills the prompt box (you need to be signed in)
 - **Dials** — click a tile to open it. Ctrl/Cmd-click opens a new tab. The dashed **+** tile adds a site. Right-click a tile to edit or delete. Drag tiles to reorder. Icon choices: the site’s favicon (the small tab icon), an uploaded image, or an image URL. Tile size is a slider in the gear menu.
-- **Most visited** — domains from the last 90 days of history, with visit counts. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
-- **Recently closed** — click a row to restore that tab or window (not just reopen the URL). Needs the `tabs` permission; after updating the extension, close a real tab and open a new tab to populate the list.
+- **Top 10** — the 10 most-visited domains from the last 90 days, with visit counts. Click the header to collapse. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
+- **Recently closed** — sits directly under Top 10. Click a row to restore that tab or window. Click the header to collapse.
 - **Weather** — uses the browser location, or click the weather to set a city. Shows city, state/region, and country. Click **C** / **F** to switch units. Data from [Open-Meteo](https://open-meteo.com/).
 - **Theme** — sun/moon in the top right. Defaults to dark and persists.
 - **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, tile size, and search engine.
