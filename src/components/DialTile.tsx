@@ -12,8 +12,9 @@ type Props = {
 };
 
 export function DialTile({ dial, onOpen, onEdit, onDragStart, onDrop }: Props) {
-  const [broken, setBroken] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const src = iconSrc(dial.icon, dial.url);
+  const broken = !src || src === failedSrc;
 
   return (
     <a
@@ -38,7 +39,7 @@ export function DialTile({ dial, onOpen, onEdit, onDragStart, onDrop }: Props) {
     >
       <span className="dial-icon">
         {src && !broken ? (
-          <img src={src} alt="" onError={() => setBroken(true)} />
+          <img key={src} src={src} alt="" onError={() => setFailedSrc(src)} />
         ) : (
           <span className="monogram">{monogram(dial.name || hostnameOf(dial.url) || '?')}</span>
         )}
