@@ -1,8 +1,11 @@
-import { browser } from 'wxt/browser';
 import type { SearchEngine } from '@/src/types';
+import {
+  CHATGPT_QUERY_KEY,
+  GEMINI_QUERY_KEY,
+  stashPrompt,
+} from '@/src/lib/pendingPrompt';
 
-export const GEMINI_QUERY_KEY = 'opendial.geminiQuery';
-export const CHATGPT_QUERY_KEY = 'opendial.chatgptQuery';
+export { CHATGPT_QUERY_KEY, GEMINI_QUERY_KEY };
 
 export const ENGINES: {
   id: SearchEngine;
@@ -28,12 +31,12 @@ export async function submitSearch(engine: SearchEngine, query: string): Promise
   }
 
   if (engine === 'chatgpt') {
-    await browser.storage.session.set({ [CHATGPT_QUERY_KEY]: trimmed });
+    await stashPrompt(CHATGPT_QUERY_KEY, trimmed);
     window.location.assign(`https://chatgpt.com/?q=${encoded}&prompt=${encoded}`);
     return;
   }
 
-  await browser.storage.session.set({ [GEMINI_QUERY_KEY]: trimmed });
+  await stashPrompt(GEMINI_QUERY_KEY, trimmed);
   window.location.assign(
     `https://gemini.google.com/app?q=${encoded}&prompt=${encoded}`,
   );

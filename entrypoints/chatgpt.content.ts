@@ -1,31 +1,27 @@
 import { fillComposer, isVisible, waitForEditor } from '@/src/lib/fillComposer';
-import { CHATGPT_QUERY_KEY } from '@/src/lib/search';
+import {
+  CHATGPT_QUERY_KEY,
+  clearStashedPrompt,
+  queryFromUrl,
+  readStashedPrompt,
+} from '@/src/lib/pendingPrompt';
 
 export default defineContentScript({
   matches: ['https://chatgpt.com/*', 'https://chat.openai.com/*'],
   runAt: 'document_idle',
   async main() {
-    const query = await readQuery();
+    const query = (await readStashedPrompt(CHATGPT_QUERY_KEY)) || queryFromUrl();
     if (!query) return;
 
     const editor = await waitForEditor(findEditor);
     if (!editor) {
-      await browser.storage.session.remove(CHATGPT_QUERY_KEY);
+      await clearStashedPrompt(CHATGPT_QUERY_KEY);
       return;
     }
     fillComposer(editor, query);
-    await browser.storage.session.remove(CHATGPT_QUERY_KEY);
+    await clearStashedPrompt(CHATGPT_QUERY_KEY);
   },
 });
-
-async function readQuery(): Promise<string | null> {
-  const params = new URLSearchParams(window.location.search);
-  const fromUrl = params.get('prompt') || params.get('q');
-  const stored = await browser.storage.session.get(CHATGPT_QUERY_KEY);
-  const fromStore = stored[CHATGPT_QUERY_KEY];
-  const query = typeof fromStore === 'string' ? fromStore : fromUrl;
-  return query?.trim() || null;
-}
 
 function findEditor(): HTMLElement | null {
   const selectors = [

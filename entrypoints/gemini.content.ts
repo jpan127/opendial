@@ -1,35 +1,27 @@
 import { fillComposer, isVisible, waitForEditor } from '@/src/lib/fillComposer';
-import { GEMINI_QUERY_KEY } from '@/src/lib/search';
+import {
+  GEMINI_QUERY_KEY,
+  clearStashedPrompt,
+  queryFromUrl,
+  readStashedPrompt,
+} from '@/src/lib/pendingPrompt';
 
 export default defineContentScript({
   matches: ['https://gemini.google.com/*'],
   runAt: 'document_idle',
   async main() {
-    const query = await readQuery();
+    const query = (await readStashedPrompt(GEMINI_QUERY_KEY)) || queryFromUrl();
     if (!query) return;
 
     const editor = await waitForEditor(findEditor);
     if (!editor) {
-      await clearQuery();
+      await clearStashedPrompt(GEMINI_QUERY_KEY);
       return;
     }
     fillComposer(editor, query);
-    await clearQuery();
+    await clearStashedPrompt(GEMINI_QUERY_KEY);
   },
 });
-
-async function readQuery(): Promise<string | null> {
-  const params = new URLSearchParams(window.location.search);
-  const fromUrl = params.get('prompt') || params.get('q');
-  const stored = await browser.storage.session.get(GEMINI_QUERY_KEY);
-  const fromStore = stored[GEMINI_QUERY_KEY];
-  const query = typeof fromStore === 'string' ? fromStore : fromUrl;
-  return query?.trim() || null;
-}
-
-async function clearQuery(): Promise<void> {
-  await browser.storage.session.remove(GEMINI_QUERY_KEY);
-}
 
 function findEditor(): HTMLElement | null {
   const selectors = [
