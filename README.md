@@ -63,12 +63,12 @@ Other scripts:
 - **Search** — type in the pill and press Enter. The small dropdown on the left picks Google, ChatGPT, or Gemini. Press `/` to focus the bar. There is no mic button.
   - Google: `google.com/search?q=`
   - ChatGPT / Gemini: OpenDial opens the site and fills the prompt box (you need to be signed in)
-- **Dials** — click a tile to open it. Ctrl/Cmd-click opens a new tab. The dashed **+** tile adds a site. Right-click a tile to edit or delete. Drag tiles to reorder. Icon choices: the site’s favicon (the small tab icon), an uploaded image, or an image URL. Tile size is a slider in the gear menu.
+- **Dials** — click a tile to open it. Ctrl/Cmd-click opens a new tab. The dashed **+** tile adds a site. Right-click a tile to edit or delete. Drag tiles to reorder. Icon choices: the site’s favicon (the small tab icon), an uploaded image, or an image URL. Tile size and welcome text size are sliders in the gear menu.
 - **Top 10** — the 10 most-visited domains from the last 90 days, with visit counts. Click the header to collapse. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
 - **Recently closed** — sits directly under Top 10. Click a row to restore that tab or window. Click the header to collapse.
-- **Weather** — uses the browser location, or click the weather to set a city. Shows city, state/region, and country. Click **C** / **F** to switch units. Data from [Open-Meteo](https://open-meteo.com/).
+- **Clock / Weather** — optional widgets in the top left, toggled from the gear menu. They share one card. The clock shows the date, time, and timezone. Weather uses the browser location, or click it to set a city. Shows city and state/region, today’s high/low, rain chance, UV, and US AQI. A **Forecast days** slider adds the next 1–6 days. Click **°C** / **°F** to switch units. Data from [Open-Meteo](https://open-meteo.com/).
 - **Theme** — sun/moon in the top right. Defaults to dark and persists.
-- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, tile size, and search engine.
+- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, tile size, welcome size, and search engine.
 
 ---
 
@@ -102,8 +102,8 @@ Change the CSS variables there (`--od-bg`, `--od-glow`, `--od-font-greeting`, `-
 | `tabs` | Titles/URLs for recently closed tabs |
 | `favicon` | Site icons (favicons) |
 | `geolocation` | Local weather; you can set a city instead |
-| Host access to Open-Meteo | Weather, no API key |
-| Host access to BigDataCloud | Reverse-geocode GPS to city/state/country |
+| Host access to Open-Meteo | Weather and air quality, no API key |
+| Host access to BigDataCloud | Reverse-geocode GPS to city/state |
 | Host access to ChatGPT / Gemini | Fill the prompt when you search with those engines |
 
 ---

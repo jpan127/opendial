@@ -1,9 +1,25 @@
 import type { BackupPayload, Dial, Greeting, SearchEngine, TempUnit, ThemeName } from '@/src/types';
-import { DEFAULT_DIAL_SIZE } from '@/src/types';
+import {
+  DEFAULT_DIAL_SIZE,
+  DEFAULT_FORECAST_DAYS,
+  DEFAULT_GREETING_SIZE,
+} from '@/src/types';
 import { DEFAULT_GREETING, STORAGE_KEYS, getLocal, setLocal } from '@/src/lib/storage';
 
 export async function exportBackup(): Promise<BackupPayload> {
-  const [theme, greeting, engine, dials, tempUnit, weatherCity, dialSize] = await Promise.all([
+  const [
+    theme,
+    greeting,
+    engine,
+    dials,
+    tempUnit,
+    weatherCity,
+    dialSize,
+    greetingSize,
+    showClock,
+    showWeather,
+    forecastDays,
+  ] = await Promise.all([
     getLocal<ThemeName>(STORAGE_KEYS.theme, 'dark'),
     getLocal<Greeting>(STORAGE_KEYS.greeting, DEFAULT_GREETING),
     getLocal<SearchEngine>(STORAGE_KEYS.engine, 'google'),
@@ -11,6 +27,10 @@ export async function exportBackup(): Promise<BackupPayload> {
     getLocal<TempUnit>(STORAGE_KEYS.tempUnit, 'c'),
     getLocal<string>(STORAGE_KEYS.weatherCity, ''),
     getLocal<number>(STORAGE_KEYS.dialSize, DEFAULT_DIAL_SIZE),
+    getLocal<number>(STORAGE_KEYS.greetingSize, DEFAULT_GREETING_SIZE),
+    getLocal<boolean>(STORAGE_KEYS.showClock, true),
+    getLocal<boolean>(STORAGE_KEYS.showWeather, true),
+    getLocal<number>(STORAGE_KEYS.forecastDays, DEFAULT_FORECAST_DAYS),
   ]);
 
   return {
@@ -22,6 +42,10 @@ export async function exportBackup(): Promise<BackupPayload> {
     tempUnit,
     weatherCity: weatherCity || undefined,
     dialSize,
+    greetingSize,
+    showClock,
+    showWeather,
+    forecastDays,
   };
 }
 
@@ -37,6 +61,10 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
     setLocal(STORAGE_KEYS.tempUnit, payload.tempUnit),
     setLocal(STORAGE_KEYS.weatherCity, payload.weatherCity ?? ''),
     setLocal(STORAGE_KEYS.dialSize, payload.dialSize ?? DEFAULT_DIAL_SIZE),
+    setLocal(STORAGE_KEYS.greetingSize, payload.greetingSize ?? DEFAULT_GREETING_SIZE),
+    setLocal(STORAGE_KEYS.showClock, payload.showClock ?? true),
+    setLocal(STORAGE_KEYS.showWeather, payload.showWeather ?? true),
+    setLocal(STORAGE_KEYS.forecastDays, payload.forecastDays ?? DEFAULT_FORECAST_DAYS),
   ]);
 }
 

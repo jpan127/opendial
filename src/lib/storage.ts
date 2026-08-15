@@ -9,7 +9,7 @@ import type {
   ThemeName,
   WeatherCache,
 } from '@/src/types';
-import { DEFAULT_DIAL_SIZE } from '@/src/types';
+import { DEFAULT_DIAL_SIZE, DEFAULT_FORECAST_DAYS, DEFAULT_GREETING_SIZE } from '@/src/types';
 
 export const STORAGE_KEYS = {
   theme: 'opendial.theme',
@@ -20,6 +20,10 @@ export const STORAGE_KEYS = {
   weather: 'opendial.weather',
   weatherCity: 'opendial.weatherCity',
   dialSize: 'opendial.dialSize',
+  greetingSize: 'opendial.greetingSize',
+  showClock: 'opendial.showClock',
+  showWeather: 'opendial.showWeather',
+  forecastDays: 'opendial.forecastDays',
   railCollapsed: 'opendial.railCollapsed',
 } as const;
 
@@ -113,6 +117,22 @@ export function useWeatherCity() {
 
 export function useDialSize() {
   return useLocalState<number>(STORAGE_KEYS.dialSize, DEFAULT_DIAL_SIZE);
+}
+
+export function useGreetingSize() {
+  return useLocalState<number>(STORAGE_KEYS.greetingSize, DEFAULT_GREETING_SIZE);
+}
+
+export function useShowClock() {
+  return useLocalState<boolean>(STORAGE_KEYS.showClock, true);
+}
+
+export function useShowWeather() {
+  return useLocalState<boolean>(STORAGE_KEYS.showWeather, true);
+}
+
+export function useForecastDays() {
+  return useLocalState<number>(STORAGE_KEYS.forecastDays, DEFAULT_FORECAST_DAYS);
 }
 
 const DEFAULT_RAIL: RailCollapsed = { top10: false, closed: false };

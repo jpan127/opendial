@@ -1,16 +1,19 @@
-import { Clock } from '@/src/components/Clock';
 import { DialGrid } from '@/src/components/DialGrid';
 import { Greeting } from '@/src/components/Greeting';
 import { LeftRail } from '@/src/components/LeftRail';
+import { LocalWidgets } from '@/src/components/LocalWidgets';
 import { SearchBar } from '@/src/components/SearchBar';
 import { SettingsMenu } from '@/src/components/SettingsMenu';
 import { ThemeToggle } from '@/src/components/ThemeToggle';
-import { Weather } from '@/src/components/Weather';
 import {
   useDialSize,
   useDials,
   useEngine,
+  useForecastDays,
   useGreeting,
+  useGreetingSize,
+  useShowClock,
+  useShowWeather,
   useTempUnit,
   useTheme,
 } from '@/src/lib/storage';
@@ -23,19 +26,34 @@ export default function App() {
   const [dials, setDials] = useDials();
   const [tempUnit, setTempUnit] = useTempUnit();
   const [dialSize] = useDialSize();
+  const [greetingSize] = useGreetingSize();
+  const [showClock] = useShowClock();
+  const [showWeather] = useShowWeather();
+  const [forecastDays] = useForecastDays();
 
   useEffect(() => {
     document.documentElement.style.setProperty('--od-dial-size', `${dialSize}px`);
   }, [dialSize]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--od-greeting-size', `${greetingSize}px`);
+  }, [greetingSize]);
 
   return (
     <div className="app">
       <LeftRail dials={dials} />
       <main className="main">
         <header className="topbar">
-          <Clock />
+          <div className="topbar-left">
+            <LocalWidgets
+              showClock={showClock}
+              showWeather={showWeather}
+              forecastDays={forecastDays}
+              unit={tempUnit}
+              onUnitChange={setTempUnit}
+            />
+          </div>
           <div className="topbar-right">
-            <Weather unit={tempUnit} onUnitChange={setTempUnit} />
             <SettingsMenu />
             <ThemeToggle
               theme={theme}
@@ -48,7 +66,7 @@ export default function App() {
           <SearchBar engine={engine} onEngineChange={setEngine} />
         </div>
         <DialGrid dials={dials} onChange={setDials} />
-        <p className="attribution">Weather by Open-Meteo</p>
+        {showWeather ? <p className="attribution">Weather by Open-Meteo</p> : null}
       </main>
     </div>
   );
