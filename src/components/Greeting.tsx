@@ -9,23 +9,46 @@ type Props = {
 export function Greeting({ greeting, onChange }: Props) {
   const [editing, setEditing] = useState(false);
   const helloRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (editing) helloRef.current?.select();
   }, [editing]);
 
+  const commit = () => {
+    onChange({
+      hello: helloRef.current?.value.trim() || 'hello',
+      name: nameRef.current?.value.trim() ?? '',
+    });
+    setEditing(false);
+  };
+
+  useEffect(() => {
+    if (!editing) return;
+    const onPointer = (event: MouseEvent) => {
+      if (!formRef.current?.contains(event.target as Node)) {
+        commit();
+      }
+    };
+    window.addEventListener('mousedown', onPointer);
+    return () => window.removeEventListener('mousedown', onPointer);
+  }, [editing]);
+
   if (editing) {
     return (
       <form
+        ref={formRef}
         className="greeting greeting-edit"
         onSubmit={(event) => {
           event.preventDefault();
-          const data = new FormData(event.currentTarget);
-          onChange({
-            hello: String(data.get('hello') ?? 'hello').trim() || 'hello',
-            name: String(data.get('name') ?? '').trim(),
-          });
-          setEditing(false);
+          commit();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            event.preventDefault();
+            setEditing(false);
+          }
         }}
       >
         <input
@@ -35,14 +58,12 @@ export function Greeting({ greeting, onChange }: Props) {
           aria-label="Greeting"
         />
         <input
+          ref={nameRef}
           name="name"
           defaultValue={greeting.name}
           placeholder="name"
           aria-label="Name"
         />
-        <button type="submit" className="text-btn">
-          Save
-        </button>
       </form>
     );
   }

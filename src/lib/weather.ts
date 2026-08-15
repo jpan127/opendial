@@ -39,6 +39,15 @@ export function formatTemp(celsius: number, unit: 'c' | 'f'): string {
   return `${Math.round(celsius)}°`;
 }
 
+function formatPlace(parts: Array<string | undefined>): string {
+  const unique: string[] = [];
+  for (const part of parts) {
+    const trimmed = part?.trim();
+    if (trimmed && !unique.includes(trimmed)) unique.push(trimmed);
+  }
+  return unique.join(', ');
+}
+
 async function fetchForecast(
   latitude: number,
   longitude: number,
@@ -84,12 +93,29 @@ export async function geocodeCity(name: string): Promise<{
   if (!first) {
     throw new Error('City not found');
   }
-  const parts = [first.name, first.admin1, first.country_code].filter(Boolean);
   return {
     latitude: first.latitude,
     longitude: first.longitude,
-    label: parts.join(', '),
+    label: formatPlace([first.name, first.admin1, first.country]),
   };
+}
+
+async function reverseGeocode(latitude: number, longitude: number): Promise<string> {
+  const url = new URL('https://api.bigdatacloud.net/data/reverse-geocode-client');
+  url.searchParams.set('latitude', String(latitude));
+  url.searchParams.set('longitude', String(longitude));
+  url.searchParams.set('localityLanguage', 'en');
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Reverse geocode failed');
+  }
+  const data = await response.json();
+  const label = formatPlace([
+    data.city || data.locality,
+    data.principalSubdivision,
+    data.countryName,
+  ]);
+  return label || 'Local';
 }
 
 function getPosition(): Promise<GeolocationPosition> {
@@ -103,7 +129,8 @@ function getPosition(): Promise<GeolocationPosition> {
 
 export async function loadWeather(force = false): Promise<WeatherCache> {
   const cached = await getLocal<WeatherCache | null>(STORAGE_KEYS.weather, null);
-  if (!force && cached && Date.now() - cached.fetchedAt < CACHE_MS) {
+  const needsPlace = cached?.cityLabel === 'Local' || !cached?.cityLabel;
+  if (!force && cached && Date.now() - cached.fetchedAt < CACHE_MS && !needsPlace) {
     return cached;
   }
 
@@ -115,11 +142,13 @@ export async function loadWeather(force = false): Promise<WeatherCache> {
 
   try {
     const position = await getPosition();
-    return fetchForecast(
-      position.coords.latitude,
-      position.coords.longitude,
-      'Local',
-    );
+    let label = 'Local';
+    try {
+      label = await reverseGeocode(position.coords.latitude, position.coords.longitude);
+    } catch {
+      /* keep Local */
+    }
+    return fetchForecast(position.coords.latitude, position.coords.longitude, label);
   } catch {
     if (cached) return cached;
     throw new Error('Location unavailable');

@@ -7,12 +7,14 @@ import { SettingsMenu } from '@/src/components/SettingsMenu';
 import { ThemeToggle } from '@/src/components/ThemeToggle';
 import { Weather } from '@/src/components/Weather';
 import {
+  useDialSize,
   useDials,
   useEngine,
   useGreeting,
   useTempUnit,
   useTheme,
 } from '@/src/lib/storage';
+import { useEffect } from 'react';
 
 export default function App() {
   const [theme, setTheme] = useTheme();
@@ -20,6 +22,11 @@ export default function App() {
   const [engine, setEngine] = useEngine();
   const [dials, setDials] = useDials();
   const [tempUnit, setTempUnit] = useTempUnit();
+  const [dialSize] = useDialSize();
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--od-dial-size', `${dialSize}px`);
+  }, [dialSize]);
 
   return (
     <div className="app">

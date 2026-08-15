@@ -40,4 +40,9 @@ export type BackupPayload = {
   dials: Dial[];
   tempUnit: TempUnit;
   weatherCity?: string;
+  dialSize?: number;
 };
+
+export const DEFAULT_DIAL_SIZE = 148;
+export const MIN_DIAL_SIZE = 110;
+export const MAX_DIAL_SIZE = 200;

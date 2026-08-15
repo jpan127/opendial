@@ -1,14 +1,16 @@
 import type { BackupPayload, Dial, Greeting, SearchEngine, TempUnit, ThemeName } from '@/src/types';
+import { DEFAULT_DIAL_SIZE } from '@/src/types';
 import { DEFAULT_GREETING, STORAGE_KEYS, getLocal, setLocal } from '@/src/lib/storage';
 
 export async function exportBackup(): Promise<BackupPayload> {
-  const [theme, greeting, engine, dials, tempUnit, weatherCity] = await Promise.all([
+  const [theme, greeting, engine, dials, tempUnit, weatherCity, dialSize] = await Promise.all([
     getLocal<ThemeName>(STORAGE_KEYS.theme, 'dark'),
     getLocal<Greeting>(STORAGE_KEYS.greeting, DEFAULT_GREETING),
     getLocal<SearchEngine>(STORAGE_KEYS.engine, 'google'),
     getLocal<Dial[]>(STORAGE_KEYS.dials, []),
     getLocal<TempUnit>(STORAGE_KEYS.tempUnit, 'c'),
     getLocal<string>(STORAGE_KEYS.weatherCity, ''),
+    getLocal<number>(STORAGE_KEYS.dialSize, DEFAULT_DIAL_SIZE),
   ]);
 
   return {
@@ -19,6 +21,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     dials,
     tempUnit,
     weatherCity: weatherCity || undefined,
+    dialSize,
   };
 }
 
@@ -33,6 +36,7 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
     setLocal(STORAGE_KEYS.dials, payload.dials ?? []),
     setLocal(STORAGE_KEYS.tempUnit, payload.tempUnit),
     setLocal(STORAGE_KEYS.weatherCity, payload.weatherCity ?? ''),
+    setLocal(STORAGE_KEYS.dialSize, payload.dialSize ?? DEFAULT_DIAL_SIZE),
   ]);
 }
 

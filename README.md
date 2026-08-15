@@ -59,17 +59,27 @@ Other scripts:
 
 ## Using OpenDial
 
-- **Greeting** — click `hello` / your name to edit both words. They are saved locally.
+- **Greeting** — click `hello` / your name to edit both words. Press Enter or click outside to save. Escape cancels.
 - **Search** — type in the pill and press Enter. The small dropdown on the left picks Google, ChatGPT, or Gemini. Press `/` to focus the bar. There is no mic button.
   - Google: `google.com/search?q=`
-  - ChatGPT: `chatgpt.com/?q=` (you need to be signed in)
-  - Gemini: opens Gemini and tries to fill the prompt. If Google changes that page, it falls back to Google AI Mode (`udm=50`)
-- **Dials** — click a tile to open it. Ctrl/Cmd-click opens a new tab. The dashed **+** tile adds a site. Right-click a tile to edit or delete. Drag tiles to reorder. Icons can be the site favicon, an upload, or an image URL.
+  - ChatGPT / Gemini: OpenDial opens the site and fills the prompt box (you need to be signed in)
+- **Dials** — click a tile to open it. Ctrl/Cmd-click opens a new tab. The dashed **+** tile adds a site. Right-click a tile to edit or delete. Drag tiles to reorder. Icon choices: the site’s favicon (the small tab icon), an uploaded image, or an image URL. Tile size is a slider in the gear menu.
 - **Most visited** — domains from the last 90 days of history, with visit counts. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
-- **Recently closed** — click a row to restore that tab or window (not just reopen the URL).
-- **Weather** — uses the browser location, or click the weather to set a city. Click **C** / **F** to switch units. Data from [Open-Meteo](https://open-meteo.com/).
+- **Recently closed** — click a row to restore that tab or window (not just reopen the URL). Needs the `tabs` permission; after updating the extension, close a real tab and open a new tab to populate the list.
+- **Weather** — uses the browser location, or click the weather to set a city. Shows city, state/region, and country. Click **C** / **F** to switch units. Data from [Open-Meteo](https://open-meteo.com/).
 - **Theme** — sun/moon in the top right. Defaults to dark and persists.
-- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, and search engine.
+- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, tile size, and search engine.
+
+---
+
+## Chrome “OpenDial” footer / Customize Chrome
+
+That bar is **Chrome’s**, not OpenDial. Starting in Chrome 138, Chrome draws a footer on any New Tab page owned by an extension. The extension cannot remove it.
+
+To hide it:
+
+1. Right-click the footer → **Hide footer on New Tab page**, or
+2. Click **Customize Chrome** on the footer → under Footer, turn off **Show footer on New Tab page**
 
 ---
 
@@ -89,10 +99,12 @@ Change the CSS variables there (`--od-bg`, `--od-glow`, `--od-font-greeting`, `-
 | `history` | Most-visited **domains** and visit counts |
 | `topSites` | Fallback list when history is thin |
 | `sessions` | Recently closed tabs (click restores the tab) |
-| `favicon` | Site icons |
+| `tabs` | Titles/URLs for recently closed tabs |
+| `favicon` | Site icons (favicons) |
 | `geolocation` | Local weather; you can set a city instead |
 | Host access to Open-Meteo | Weather, no API key |
-| Host access to Gemini | Fill the prompt when you search with Gemini |
+| Host access to BigDataCloud | Reverse-geocode GPS to city/state/country |
+| Host access to ChatGPT / Gemini | Fill the prompt when you search with those engines |
 
 ---
 
@@ -153,23 +165,9 @@ If you already pushed `master`, you can still rename later in the GitHub repo se
 
 ## Upgrade Git?
 
-**You should, but you do not have to in order to push this repo.**
+A current [Git for Windows](https://git-scm.com/download/win) (2.4x / 2.5x) is recommended. Check with `git --version`.
 
-This machine has Git **2.13.0** (2017). `git add`, `commit`, `remote`, and `push` still work. What you lose:
-
-- Nine years of security fixes
-- Newer GitHub/HTTPS credential helpers
-- Features current tools expect (for example `git commit --trailer`, which 2.13 does not understand)
-
-Install a current [Git for Windows](https://git-scm.com/download/win) (2.47+). After installing, open a **new** terminal and check:
-
-```bash
-git --version
-```
-
-You want something in the 2.4x / 2.5x range, not 2.13.
-
-The GitHub CLI (`gh`) is separate from Git. Install it from [cli.github.com](https://cli.github.com/) if you want the one-command `gh repo create` flow above.
+The GitHub CLI (`gh`) is separate. If `gh` is missing in an old terminal, open a new one (or restart Cursor) so it picks up `C:\Program Files\GitHub CLI`. Git Bash can also load it from `~/.bashrc`.
 
 ---
 

@@ -14,13 +14,17 @@ export default defineConfig({
       'history',
       'topSites',
       'sessions',
+      'tabs',
       'favicon',
       'geolocation',
     ],
     host_permissions: [
       'https://api.open-meteo.com/*',
       'https://geocoding-api.open-meteo.com/*',
+      'https://api.bigdatacloud.net/*',
       'https://gemini.google.com/*',
+      'https://chatgpt.com/*',
+      'https://chat.openai.com/*',
     ],
     action: {
       default_title: 'OpenDial',

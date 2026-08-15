@@ -8,6 +8,7 @@ import type {
   ThemeName,
   WeatherCache,
 } from '@/src/types';
+import { DEFAULT_DIAL_SIZE } from '@/src/types';
 
 export const STORAGE_KEYS = {
   theme: 'opendial.theme',
@@ -17,6 +18,7 @@ export const STORAGE_KEYS = {
   tempUnit: 'opendial.tempUnit',
   weather: 'opendial.weather',
   weatherCity: 'opendial.weatherCity',
+  dialSize: 'opendial.dialSize',
 } as const;
 
 export const DEFAULT_GREETING: Greeting = {
@@ -105,4 +107,8 @@ export function useWeatherCache() {
 
 export function useWeatherCity() {
   return useLocalState<string>(STORAGE_KEYS.weatherCity, '');
+}
+
+export function useDialSize() {
+  return useLocalState<number>(STORAGE_KEYS.dialSize, DEFAULT_DIAL_SIZE);
 }

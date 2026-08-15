@@ -12,7 +12,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: var(--od-space-4) var(--od-space-6) var(--od-space-5);
+  padding: var(--od-space-4) var(--od-space-6) 72px;
 }
 
 .topbar {
@@ -29,8 +29,21 @@
 }
 
 .clock {
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--od-text);
+}
+
+.clock-time {
+  font-size: var(--od-clock-size);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.clock-zone {
+  font-size: 0.85rem;
   color: var(--od-text-muted);
 }
 
@@ -47,7 +60,7 @@
   width: 32px;
   height: 32px;
   border-radius: var(--od-radius-sm);
-  color: var(--od-text-muted);
+  color: var(--od-text);
 }
 
 .icon-btn:hover,
@@ -94,13 +107,14 @@
   color: var(--od-text);
 }
 
-.greeting-hello {
-  font-weight: 400;
-  color: var(--od-text-muted);
+.greeting-hello,
+.greeting-name {
+  font-weight: 500;
+  color: var(--od-text);
 }
 
 .greeting-name {
-  font-weight: 600;
+  font-weight: 650;
 }
 
 .greeting-placeholder {
@@ -231,17 +245,17 @@
 .dial-icon {
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
+  width: calc(var(--od-dial-size) * 0.62);
+  height: calc(var(--od-dial-size) * 0.62);
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 20px;
   background: var(--od-tile);
   border: 1px solid var(--od-border);
 }
 
 .dial-icon img {
-  width: 32px;
-  height: 32px;
+  width: 58%;
+  height: 58%;
   object-fit: contain;
 }
 
@@ -256,8 +270,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.82rem;
-  color: var(--od-text-muted);
+  font-size: 0.95rem;
+  color: var(--od-text);
 }
 
 .add-tile {
@@ -288,11 +302,11 @@
 
 .rail-section h2 {
   margin: 0 0 var(--od-space-3);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--od-text-faint);
+  color: var(--od-text-muted);
 }
 
 .rail-section ul {
@@ -337,18 +351,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
+  color: var(--od-text);
 }
 
 .rail-meta {
-  font-size: 0.75rem;
-  color: var(--od-text-faint);
+  font-size: 0.78rem;
+  color: var(--od-text-muted);
 }
 
 .rail-empty {
   padding: 8px 6px;
-  font-size: 0.82rem;
-  color: var(--od-text-faint);
+  font-size: 0.84rem;
+  color: var(--od-text-muted);
 }
 
 .weather {
@@ -361,15 +376,19 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 1px;
+  gap: 2px;
   border: 0;
   background: transparent;
-  color: var(--od-text-muted);
+  color: var(--od-text);
+  font-size: var(--od-weather-size);
+  line-height: 1.2;
+  text-align: right;
 }
 
 .weather-city {
-  font-size: 0.7rem;
-  color: var(--od-text-faint);
+  font-size: 0.82rem;
+  color: var(--od-text-muted);
+  max-width: 280px;
 }
 
 .weather-edit {
@@ -397,7 +416,7 @@
   z-index: 6;
   display: flex;
   flex-direction: column;
-  min-width: 160px;
+  min-width: 220px;
   padding: 6px;
   border: 1px solid var(--od-border-strong);
   border-radius: var(--od-radius-md);
@@ -415,6 +434,25 @@
 
 .settings-menu button:hover {
   background: var(--od-surface-hover);
+}
+
+.size-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px 12px;
+  font-size: 0.85rem;
+  color: var(--od-text);
+}
+
+.size-row input[type='range'] {
+  width: 100%;
+}
+
+.field-hint {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  color: var(--od-text-muted);
 }
 
 .modal-backdrop {
@@ -499,8 +537,8 @@
 .attribution {
   margin-top: auto;
   padding-top: var(--od-space-5);
-  font-size: 0.7rem;
-  color: var(--od-text-faint);
+  font-size: 0.75rem;
+  color: var(--od-text-muted);
   text-align: right;
 }
 

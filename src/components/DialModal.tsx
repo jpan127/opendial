@@ -79,8 +79,11 @@ export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
               checked={iconKind === 'favicon'}
               onChange={() => setIconKind('favicon')}
             />
-            Site favicon
+            Website icon
           </label>
+          <p className="field-hint">
+            The small icon the site gives browsers for tabs and bookmarks (its favicon).
+          </p>
           <label className="radio">
             <input
               type="radio"

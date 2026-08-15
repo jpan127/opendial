@@ -10,7 +10,7 @@ export type ClosedEntry = {
 };
 
 function isNtp(url: string | undefined): boolean {
-  if (!url) return true;
+  if (!url) return false;
   return (
     url.startsWith('chrome://newtab') ||
     url.startsWith('chrome://new-tab-page') ||

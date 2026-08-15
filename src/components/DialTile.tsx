@@ -51,5 +51,5 @@ export function DialTile({ dial, onOpen, onEdit, onDragStart, onDrop }: Props) {
 function iconSrc(icon: DialIcon, pageUrl: string): string | null {
   if (icon.kind === 'upload') return icon.dataUrl;
   if (icon.kind === 'url') return icon.href;
-  return faviconUrl(pageUrl, 128);
+  return faviconUrl(pageUrl, 256);
 }

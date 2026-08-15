@@ -2,6 +2,7 @@ import { browser } from 'wxt/browser';
 import type { SearchEngine } from '@/src/types';
 
 export const GEMINI_QUERY_KEY = 'opendial.geminiQuery';
+export const CHATGPT_QUERY_KEY = 'opendial.chatgptQuery';
 
 export const ENGINES: {
   id: SearchEngine;
@@ -19,25 +20,21 @@ export function engineLabel(id: SearchEngine): string {
 export async function submitSearch(engine: SearchEngine, query: string): Promise<void> {
   const trimmed = query.trim();
   if (!trimmed) return;
+  const encoded = encodeURIComponent(trimmed);
 
   if (engine === 'google') {
-    window.location.assign(
-      `https://www.google.com/search?q=${encodeURIComponent(trimmed)}`,
-    );
+    window.location.assign(`https://www.google.com/search?q=${encoded}`);
     return;
   }
 
   if (engine === 'chatgpt') {
-    window.location.assign(
-      `https://chatgpt.com/?q=${encodeURIComponent(trimmed)}`,
-    );
+    await browser.storage.session.set({ [CHATGPT_QUERY_KEY]: trimmed });
+    window.location.assign(`https://chatgpt.com/?q=${encoded}&prompt=${encoded}`);
     return;
   }
 
   await browser.storage.session.set({ [GEMINI_QUERY_KEY]: trimmed });
-  window.location.assign('https://gemini.google.com/app');
-}
-
-export function geminiFallbackUrl(query: string): string {
-  return `https://www.google.com/search?udm=50&q=${encodeURIComponent(query)}`;
+  window.location.assign(
+    `https://gemini.google.com/app?q=${encoded}&prompt=${encoded}`,
+  );
 }

@@ -13,5 +13,16 @@ export function Clock() {
     minute: '2-digit',
   }).format(now);
 
-  return <div className="clock">{time}</div>;
+  const zone = new Intl.DateTimeFormat(undefined, {
+    timeZoneName: 'short',
+  })
+    .formatToParts(now)
+    .find((part) => part.type === 'timeZoneName')?.value;
+
+  return (
+    <div className="clock">
+      <span className="clock-time">{time}</span>
+      {zone ? <span className="clock-zone">{zone}</span> : null}
+    </div>
+  );
 }

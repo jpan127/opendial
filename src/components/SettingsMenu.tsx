@@ -1,9 +1,12 @@
 import { useRef, useState } from 'react';
 import { downloadBackup, exportBackup, importBackup } from '@/src/lib/backup';
+import { useDialSize } from '@/src/lib/storage';
 import type { BackupPayload } from '@/src/types';
+import { MAX_DIAL_SIZE, MIN_DIAL_SIZE } from '@/src/types';
 
 export function SettingsMenu() {
   const [open, setOpen] = useState(false);
+  const [dialSize, setDialSize] = useDialSize();
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -19,6 +22,16 @@ export function SettingsMenu() {
       </button>
       {open ? (
         <div className="settings-menu">
+          <label className="size-row">
+            Tile size
+            <input
+              type="range"
+              min={MIN_DIAL_SIZE}
+              max={MAX_DIAL_SIZE}
+              value={dialSize}
+              onChange={(event) => setDialSize(Number(event.target.value))}
+            />
+          </label>
           <button
             type="button"
             onClick={async () => {

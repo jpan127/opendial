@@ -1,8 +1,8 @@
 import { fillComposer, isVisible, waitForEditor } from '@/src/lib/fillComposer';
-import { GEMINI_QUERY_KEY } from '@/src/lib/search';
+import { CHATGPT_QUERY_KEY } from '@/src/lib/search';
 
 export default defineContentScript({
-  matches: ['https://gemini.google.com/*'],
+  matches: ['https://chatgpt.com/*', 'https://chat.openai.com/*'],
   runAt: 'document_idle',
   async main() {
     const query = await readQuery();
@@ -10,36 +10,31 @@ export default defineContentScript({
 
     const editor = await waitForEditor(findEditor);
     if (!editor) {
-      await clearQuery();
+      await browser.storage.session.remove(CHATGPT_QUERY_KEY);
       return;
     }
     fillComposer(editor, query);
-    await clearQuery();
+    await browser.storage.session.remove(CHATGPT_QUERY_KEY);
   },
 });
 
 async function readQuery(): Promise<string | null> {
   const params = new URLSearchParams(window.location.search);
   const fromUrl = params.get('prompt') || params.get('q');
-  const stored = await browser.storage.session.get(GEMINI_QUERY_KEY);
-  const fromStore = stored[GEMINI_QUERY_KEY];
+  const stored = await browser.storage.session.get(CHATGPT_QUERY_KEY);
+  const fromStore = stored[CHATGPT_QUERY_KEY];
   const query = typeof fromStore === 'string' ? fromStore : fromUrl;
   return query?.trim() || null;
 }
 
-async function clearQuery(): Promise<void> {
-  await browser.storage.session.remove(GEMINI_QUERY_KEY);
-}
-
 function findEditor(): HTMLElement | null {
   const selectors = [
-    'div[contenteditable="true"][role="textbox"]',
-    'rich-textarea [contenteditable="true"]',
-    'div.ql-editor[contenteditable="true"]',
-    '[aria-label="Enter a prompt here"]',
-    '[aria-label*="prompt" i][contenteditable="true"]',
-    'textarea',
-    '[contenteditable="true"]',
+    '#prompt-textarea',
+    'div#prompt-textarea[contenteditable="true"]',
+    'div.ProseMirror[contenteditable="true"]',
+    '[data-placeholder][contenteditable="true"]',
+    'textarea[name="prompt-textarea"]',
+    '[contenteditable="true"][role="textbox"]',
   ];
   for (const selector of selectors) {
     const node = document.querySelector<HTMLElement>(selector);
