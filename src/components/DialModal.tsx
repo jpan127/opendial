@@ -76,6 +76,7 @@ export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
   }, [iconKind]);
 
   const match = matchSvgl(debouncedUrl, catalog);
+  // Catalog URL on svgl.app — fine for <img> preview, not for fetch() (no CORS).
   const suggestionHref = match ? svglIconHref(match, theme) : null;
   const suggestionOk = Boolean(suggestionHref) && !(iconKind === 'suggested' && brokenPreview);
 
@@ -87,6 +88,7 @@ export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
   const buildIcon = async (): Promise<DialIcon> => {
     if (iconKind === 'suggested') {
       if (!match || !suggestionHref || !suggestionOk) return { kind: 'favicon' };
+      // Rewrites suggestionHref to api.svgl.app, rasterizes PNG. See svgl.ts.
       const dataUrl = await fetchSvgAsDataUrl(suggestionHref);
       return { kind: 'upload', dataUrl };
     }

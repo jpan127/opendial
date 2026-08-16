@@ -13,9 +13,10 @@
  * Add site loads the catalog when the modal opens (Suggested is default).
  * Edit loads it only after the user clicks Suggested. Never refetch while
  * typing. SVGL rate-limits at 5 req / 10s then a 3-minute lockout; in-flight
- * coalescing plus the TTL stay under that. Preview <img> may use svgl.app;
- * Save fetches SVG text from api.svgl.app (CORS *). svgl.app itself has no
- * Access-Control-Allow-Origin, so fetch() of the preview URL fails.
+ * coalescing plus the TTL stay under that. Preview <img> may use svgl.app
+ * (display-only). Save never fetch()es svgl.app — it has no
+ * Access-Control-Allow-Origin, and Chrome logs CORS even if we catch it.
+ * Download and rasterize go through api.svgl.app (CORS *).
  *
  * Why PNG data URLs, not SVG on disk
  * The extension package is read-only at runtime — we cannot write
@@ -99,20 +100,34 @@ export function svglIconHref(row: SvglRow, theme: ThemeName): string {
 
 const ICON_RASTER_SIZE = 256;
 
+/**
+ * Persist a suggested mark as a PNG data URL.
+ *
+ * `href` is the catalog preview URL (https://svgl.app/library/reddit.svg).
+ * Do not fetch or draw that host: it has no Access-Control-Allow-Origin, so
+ * Chrome blocks fetch() from chrome-extension:// and still logs CORS when
+ * the rejection is caught. Map the filename onto api.svgl.app (CORS *) and
+ * rasterize from there. Prefer loading the API URL as an <img> (one GET);
+ * if that fails, fetch SVG text from the same API URL and rasterize locally.
+ */
 export async function fetchSvgAsDataUrl(href: string): Promise<string> {
-  const candidates = svgFetchCandidates(href);
-  let lastError: unknown;
-  for (const url of candidates) {
+  const apiUrl = apiSvgUrl(href);
+  if (!apiUrl) {
+    throw new Error('Could not download the suggested logo');
+  }
+  try {
+    return await rasterizeRemoteToPng(apiUrl);
+  } catch {
     try {
-      const text = await fetchSvgText(url);
-      if (text.includes('<svg')) {
-        return rasterizeSvgToPng(text);
+      const text = await fetchSvgText(apiUrl);
+      if (!text.includes('<svg')) {
+        throw new Error('Could not download the suggested logo');
       }
+      return await rasterizeSvgToPng(text);
     } catch (error) {
-      lastError = error;
+      throw toSaveError(error);
     }
   }
-  throw toSaveError(lastError);
 }
 
 export function isSvgDataUrl(value: string): boolean {
@@ -123,6 +138,7 @@ export async function rasterizeSvgDataUrl(dataUrl: string): Promise<string> {
   return rasterizeSvgToPng(svgTextFromDataUrl(dataUrl));
 }
 
+/** Draw SVG markup via a blob: URL. NTP blocks data:image/svg+xml as <img> src. */
 async function rasterizeSvgToPng(svgText: string, size = ICON_RASTER_SIZE): Promise<string> {
   const prepared = prepareSvg(svgText, size);
   const objectUrl = URL.createObjectURL(
@@ -164,22 +180,41 @@ function svgTextFromDataUrl(dataUrl: string): string {
   return decodeURIComponent(payload);
 }
 
-function loadImage(src: string): Promise<HTMLImageElement> {
+/**
+ * Draw an HTTPS SVG into a canvas. `crossOrigin = anonymous` is required so
+ * the canvas is not tainted and toDataURL('image/png') is allowed. Only pass
+ * api.svgl.app URLs — svgl.app would fail this CORS check.
+ */
+async function rasterizeRemoteToPng(url: string, size = ICON_RASTER_SIZE): Promise<string> {
+  const image = await loadImage(url, 'anonymous');
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Could not draw the suggested logo');
+  ctx.drawImage(image, 0, 0, size, size);
+  return canvas.toDataURL('image/png');
+}
+
+function loadImage(src: string, crossOrigin?: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
+    // Must set crossOrigin before src, or the first request is a no-CORS load.
+    if (crossOrigin) image.crossOrigin = crossOrigin;
     image.onload = () => resolve(image);
     image.onerror = () => reject(new Error('Could not draw the suggested logo'));
     image.src = src;
   });
 }
 
-function svgFetchCandidates(href: string): string[] {
+/**
+ * Catalog `route` is https://svgl.app/library/{file}.svg (preview <img> only).
+ * The download endpoint is GET https://api.svgl.app/svg/{file}.svg
+ * (Access-Control-Allow-Origin: *). Filename is the last path segment.
+ */
+function apiSvgUrl(href: string): string | null {
   const file = fileNameOf(href);
-  const urls = [
-    file ? `https://api.svgl.app/svg/${file}` : '',
-    href,
-  ];
-  return [...new Set(urls.filter((url) => url.length > 0))];
+  return file ? `https://api.svgl.app/svg/${file}` : null;
 }
 
 function fileNameOf(href: string): string {
@@ -191,6 +226,7 @@ function fileNameOf(href: string): string {
   }
 }
 
+/** fetch() only api.svgl.app. Never pass svgl.app — CORS is not present there. */
 async function fetchSvgText(url: string): Promise<string> {
   const response = await fetch(url, { credentials: 'omit' });
   if (!response.ok) {
