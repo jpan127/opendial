@@ -14,6 +14,11 @@ export function SearchBar({ engine, onEngineChange }: Props) {
   const rootRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
+    // NTP stub (entrypoints/newtab) redirects here so this focus can stick.
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target as HTMLElement | null;
@@ -24,6 +29,13 @@ export function SearchBar({ engine, onEngineChange }: Props) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
+
+  const cycleEngine = (backward: boolean) => {
+    const index = ENGINES.findIndex((item) => item.id === engine);
+    const offset = backward ? -1 : 1;
+    const next = ENGINES[(index + offset + ENGINES.length) % ENGINES.length];
+    if (next) onEngineChange(next.id);
+  };
 
   useEffect(() => {
     const onPointer = (event: MouseEvent) => {
@@ -82,9 +94,17 @@ export function SearchBar({ engine, onEngineChange }: Props) {
         ref={inputRef}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key !== 'Tab' || event.metaKey || event.ctrlKey || event.altKey) {
+            return;
+          }
+          event.preventDefault();
+          cycleEngine(event.shiftKey);
+        }}
         placeholder="Search the web…"
         aria-label="Search"
         autoComplete="off"
+        autoFocus
       />
     </form>
   );
