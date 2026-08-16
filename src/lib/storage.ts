@@ -28,6 +28,7 @@ export const STORAGE_KEYS = {
   showRecentlyClosed: 'opendial.showRecentlyClosed',
   railCollapsed: 'opendial.railCollapsed',
   svglCatalog: 'opendial.svglCatalog',
+  simpleIconsCatalog: 'opendial.simpleIconsCatalog',
 } as const;
 
 export const DEFAULT_GREETING: Greeting = {

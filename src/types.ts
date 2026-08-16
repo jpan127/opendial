@@ -9,7 +9,11 @@ export type Greeting = {
 
 export type DialIcon =
   | { kind: 'favicon' }
-  | { kind: 'upload'; dataUrl: string } // data:image/png (or jpeg from a user drop); not svg+xml — Chrome NTP blocks those
+  | {
+      kind: 'upload';
+      dataUrl: string; // data:image/png (or jpeg from a user drop); not svg+xml — Chrome NTP blocks those
+      via?: 'suggested'; // rasterized from Suggested; Edit opens that tab
+    }
   | { kind: 'url'; href: string };
 
 export type Dial = {

@@ -28,6 +28,8 @@ export default defineConfig({
       'https://chat.openai.com/*',
       'https://api.svgl.app/*',
       'https://svgl.app/*',
+      'https://cdn.jsdelivr.net/*',
+      'https://cdn.simpleicons.org/*',
     ],
     action: {
       default_title: 'OpenDial',

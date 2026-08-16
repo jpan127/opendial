@@ -6,13 +6,15 @@
  * not a folder of images. We cache that index 5 minutes in RAM +
  * chrome.storage.local (opendial.svglCatalog). It is not part of backup JSON.
  * Matching is local: hostname, then longest path prefix (github.com vs
- * github.com/features/copilot). Do not use ?search= — that is title search
- * and ranks Copilot first for "github".
+ * github.com/features/copilot). Product hosts also search the parent domain
+ * (drive.google.com uses google.com/drive). Homepage `/` on the parent is
+ * ignored so Drive does not fall through to the Google mark. Do not use
+ * ?search= — that is title search and ranks Copilot first for "github".
  *
  * When we hit the network
  * Add site loads the catalog when the modal opens (Suggested is default).
- * Edit loads it only after the user clicks Suggested. Never refetch while
- * typing. SVGL rate-limits at 5 req / 10s then a 3-minute lockout; in-flight
+ * Edit with a suggested-origin tile does the same; other edits load it only
+ * after the user clicks Suggested. Never refetch while typing. SVGL rate-limits at 5 req / 10s then a 3-minute lockout; in-flight
  * coalescing plus the TTL stay under that. Preview <img> may use svgl.app
  * (display-only). Save never fetch()es svgl.app — it has no
  * Access-Control-Allow-Origin, and Chrome logs CORS even if we catch it.
@@ -25,7 +27,7 @@
  * does not call SVGL again. data:image/svg+xml is blocked as an <img> src on
  * Chrome extension pages (SVG can carry script). data:image/png is allowed.
  * Suggested Save rasterizes the SVG to a 256px PNG and stores it as
- * DialIcon upload — same shape as dropping a file. Alternatives we did not
+ * DialIcon upload with via: 'suggested' so Edit reopens that tab. Alternatives we did not
  * take: hotlink svgl.app every New Tab; bundle 665 SVGs at build time;
  * store SVG text and mint a blob: URL each load (would keep vectors).
  */
@@ -80,18 +82,42 @@ export function matchSvgl(pageUrl: string, catalog: SvglCatalog | null): SvglRow
   const host = hostnameOf(parsed.href);
   if (!host) return null;
   const dialPath = normalizePath(parsed.pathname);
-  const rows = catalog.byHost[host] ?? [];
+  const attempts = hostPathAttempts(host, dialPath);
+
   let best: SvglRow | null = null;
   let bestLen = -1;
-  for (const row of rows) {
-    if (!pathPrefixOk(row.path, dialPath)) continue;
-    const len = pathScore(row.path);
-    if (len > bestLen) {
-      best = row;
-      bestLen = len;
+  let bestExact = false;
+  for (const attempt of attempts) {
+    const rows = catalog.byHost[attempt.host] ?? [];
+    for (const row of rows) {
+      if (attempt.host !== host && row.path === '/') continue;
+      if (!pathPrefixOk(row.path, attempt.path)) continue;
+      const len = pathScore(row.path);
+      const exact = attempt.host === host;
+      if (len > bestLen || (len === bestLen && exact && !bestExact)) {
+        best = row;
+        bestLen = len;
+        bestExact = exact;
+      }
     }
   }
   return best;
+}
+
+/** drive.google.com/… also looks at google.com rows (SVGL lists Drive as google.com/drive). */
+function hostPathAttempts(host: string, dialPath: string): Array<{ host: string; path: string }> {
+  const attempts: Array<{ host: string; path: string }> = [{ host, path: dialPath }];
+  const labels = host.split('.');
+  if (labels.length < 3) return attempts;
+  const sub = labels[0] ?? '';
+  const parent = labels.slice(1).join('.');
+  if (!sub || !parent) return attempts;
+  attempts.push({ host: parent, path: dialPath });
+  const productPath = normalizePath(`/${sub}`);
+  if (productPath !== '/' && productPath !== dialPath) {
+    attempts.push({ host: parent, path: productPath });
+  }
+  return attempts;
 }
 
 export function svglIconHref(row: SvglRow, theme: ThemeName): string {
@@ -139,7 +165,7 @@ export async function rasterizeSvgDataUrl(dataUrl: string): Promise<string> {
 }
 
 /** Draw SVG markup via a blob: URL. NTP blocks data:image/svg+xml as <img> src. */
-async function rasterizeSvgToPng(svgText: string, size = ICON_RASTER_SIZE): Promise<string> {
+export async function rasterizeSvgToPng(svgText: string, size = ICON_RASTER_SIZE): Promise<string> {
   const prepared = prepareSvg(svgText, size);
   const objectUrl = URL.createObjectURL(
     new Blob([prepared], { type: 'image/svg+xml;charset=utf-8' }),
