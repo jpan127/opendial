@@ -1,0 +1,13 @@
+---
+description: Always rebuild the extension after finishing code changes
+alwaysApply: true
+---
+
+# Rebuild after finishing changes
+
+When you finish implementing, editing, or fixing project code, run a production build before you stop. Do not leave source-only changes that the loaded Chrome extension will not pick up.
+
+- From the project root: `npm run build` (`wxt build`).
+- Do this even for small UI or content-script edits.
+- If the user still has the extension loaded unpacked, remind them to reload it in `chrome://extensions` when the build output changed.
+- Skip the rebuild only when the work did not change build inputs (for example docs-only or Cursor rules).
