@@ -9,7 +9,7 @@ export type Greeting = {
 
 export type DialIcon =
   | { kind: 'favicon' }
-  | { kind: 'upload'; dataUrl: string }
+  | { kind: 'upload'; dataUrl: string } // data:image/png (or jpeg from a user drop); not svg+xml — Chrome NTP blocks those
   | { kind: 'url'; href: string };
 
 export type Dial = {

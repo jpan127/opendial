@@ -1,7 +1,8 @@
 import type { MouseEvent } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Dial, DialIcon } from '@/src/types';
 import { faviconUrl, hostnameOf, monogram } from '@/src/lib/format';
+import { isSvgDataUrl, rasterizeSvgDataUrl } from '@/src/lib/svgl';
 
 type Props = {
   dial: Dial;
@@ -13,7 +14,33 @@ type Props = {
 
 export function DialTile({ dial, onOpen, onEdit, onDragStart, onDrop }: Props) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
-  const src = iconSrc(dial.icon, dial.url);
+  const rawSrc = iconSrc(dial.icon, dial.url);
+  const [src, setSrc] = useState<string | null>(
+    rawSrc && isSvgDataUrl(rawSrc) ? null : rawSrc,
+  );
+
+  useEffect(() => {
+    if (!rawSrc) {
+      setSrc(null);
+      return;
+    }
+    if (!isSvgDataUrl(rawSrc)) {
+      setSrc(rawSrc);
+      return;
+    }
+    let cancelled = false;
+    void rasterizeSvgDataUrl(rawSrc)
+      .then((png) => {
+        if (!cancelled) setSrc(png);
+      })
+      .catch(() => {
+        if (!cancelled) setSrc(rawSrc);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [rawSrc]);
+
   const broken = !src || src === failedSrc;
 
   return (

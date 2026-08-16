@@ -26,6 +26,8 @@ export default defineConfig({
       'https://gemini.google.com/*',
       'https://chatgpt.com/*',
       'https://chat.openai.com/*',
+      'https://api.svgl.app/*',
+      'https://svgl.app/*',
     ],
     action: {
       default_title: 'OpenDial',

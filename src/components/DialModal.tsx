@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Dial, DialIcon } from '@/src/types';
 import { faviconUrl, hostnameOf, monogram, normalizeUrl } from '@/src/lib/format';
+import { useTheme } from '@/src/lib/storage';
+import {
+  fetchSvgAsDataUrl,
+  loadSvglCatalog,
+  matchSvgl,
+  svglIconHref,
+  type SvglCatalog,
+  type SvglRow,
+} from '@/src/lib/svgl';
+
+/** Suggested is a modal-only source. It is never persisted; Save becomes upload or favicon. */
+type IconSource = DialIcon['kind'] | 'suggested';
 
 type Props = {
   initial?: Dial | null;
@@ -9,21 +21,30 @@ type Props = {
   onClose: () => void;
 };
 
-const ICON_OPTIONS: { kind: DialIcon['kind']; label: string }[] = [
+const ICON_OPTIONS: { kind: IconSource; label: string }[] = [
+  { kind: 'suggested', label: 'Suggested' },
   { kind: 'favicon', label: 'Favicon' },
   { kind: 'upload', label: 'Upload' },
   { kind: 'url', label: 'URL' },
 ];
 
 export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
+  const [theme] = useTheme();
+  const isAdd = !initial;
   const [name, setName] = useState(initial?.name ?? '');
   const [url, setUrl] = useState(initial?.url ?? '');
-  const [iconKind, setIconKind] = useState<DialIcon['kind']>(initial?.icon.kind ?? 'favicon');
+  const [debouncedUrl, setDebouncedUrl] = useState(initial?.url ?? '');
+  const [iconKind, setIconKind] = useState<IconSource>(
+    isAdd ? 'suggested' : (initial?.icon.kind ?? 'favicon'),
+  );
   const [iconUrl, setIconUrl] = useState(initial?.icon.kind === 'url' ? initial.icon.href : '');
   const [upload, setUpload] = useState(initial?.icon.kind === 'upload' ? initial.icon.dataUrl : '');
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
   const [draggingFile, setDraggingFile] = useState(false);
   const [brokenPreview, setBrokenPreview] = useState(false);
+  const [catalog, setCatalog] = useState<SvglCatalog | null>(null);
+  const [catalogReady, setCatalogReady] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const firstFieldRef = useRef<HTMLInputElement>(null);
 
@@ -36,12 +57,39 @@ export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedUrl(url), 200);
+    return () => window.clearTimeout(timer);
+  }, [url]);
+
+  useEffect(() => {
+    if (iconKind !== 'suggested') return;
+    let cancelled = false;
+    void loadSvglCatalog().then((loaded) => {
+      if (cancelled) return;
+      setCatalog(loaded);
+      setCatalogReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [iconKind]);
+
+  const match = matchSvgl(debouncedUrl, catalog);
+  const suggestionHref = match ? svglIconHref(match, theme) : null;
+  const suggestionOk = Boolean(suggestionHref) && !(iconKind === 'suggested' && brokenPreview);
+
   const previewHref = safeNormalize(url);
   const previewName = name.trim() || hostnameOf(previewHref) || 'New site';
-  const previewSrc = previewIconSrc(iconKind, previewHref, upload, iconUrl);
+  const previewSrc = previewIconSrc(iconKind, previewHref, upload, iconUrl, suggestionOk ? suggestionHref : null);
   const showPreviewImage = Boolean(previewSrc) && !brokenPreview;
 
-  const buildIcon = (): DialIcon => {
+  const buildIcon = async (): Promise<DialIcon> => {
+    if (iconKind === 'suggested') {
+      if (!match || !suggestionHref || !suggestionOk) return { kind: 'favicon' };
+      const dataUrl = await fetchSvgAsDataUrl(suggestionHref);
+      return { kind: 'upload', dataUrl };
+    }
     if (iconKind === 'upload') {
       if (!upload) throw new Error('Choose an image to upload');
       return { kind: 'upload', dataUrl: upload };
@@ -74,16 +122,23 @@ export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
         onClick={(event) => event.stopPropagation()}
         onSubmit={(event) => {
           event.preventDefault();
-          try {
-            const normalized = normalizeUrl(url);
-            onSave({
-              name: name.trim() || hostnameFrom(normalized),
-              url: normalized,
-              icon: buildIcon(),
-            });
-          } catch (err) {
-            setError(err instanceof Error ? err.message : 'Could not save');
-          }
+          if (saving) return;
+          setSaving(true);
+          setError('');
+          void (async () => {
+            try {
+              const normalized = normalizeUrl(url);
+              const icon = await buildIcon();
+              onSave({
+                name: name.trim() || hostnameFrom(normalized),
+                url: normalized,
+                icon,
+              });
+            } catch (err) {
+              setError(err instanceof Error ? err.message : 'Could not save');
+              setSaving(false);
+            }
+          })();
         }}
       >
         <header className="modal-head">
@@ -104,6 +159,15 @@ export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
             </svg>
           </button>
         </header>
+
+        {error ? (
+          <div className="modal-alert" role="alert">
+            <span className="modal-alert-mark" aria-hidden>
+              !
+            </span>
+            <p>{error}</p>
+          </div>
+        ) : null}
 
         <div className="modal-body">
           <div className="modal-preview" aria-hidden>
@@ -139,6 +203,7 @@ export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
                 onChange={(event) => {
                   setUrl(event.target.value);
                   setBrokenPreview(false);
+                  setError('');
                 }}
                 placeholder="github.com"
                 required
@@ -165,6 +230,17 @@ export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
                   </button>
                 ))}
               </div>
+
+              {iconKind === 'suggested' ? (
+                <SuggestedPanel
+                  catalogReady={catalogReady}
+                  hasAddress={Boolean(debouncedUrl.trim())}
+                  match={match}
+                  href={suggestionHref}
+                  broken={!suggestionOk && Boolean(suggestionHref)}
+                  onImgError={() => setBrokenPreview(true)}
+                />
+              ) : null}
 
               {iconKind === 'favicon' ? (
                 <p className="field-hint">Uses the site’s tab icon. Type an address to preview it.</p>
@@ -216,24 +292,59 @@ export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
           </div>
         </div>
 
-        {error ? <p className="form-error">{error}</p> : null}
-
         <div className="modal-actions">
           {onDelete ? (
-            <button type="button" className="danger-btn" onClick={onDelete}>
+            <button type="button" className="danger-btn" onClick={onDelete} disabled={saving}>
               Delete
             </button>
           ) : (
             <span />
           )}
-          <button type="button" className="text-btn" onClick={onClose}>
+          <button type="button" className="text-btn" onClick={onClose} disabled={saving}>
             Cancel
           </button>
-          <button type="submit" className="primary-btn">
-            {initial ? 'Save' : 'Add site'}
+          <button type="submit" className="primary-btn" disabled={saving}>
+            {saving ? 'Saving…' : initial ? 'Save' : 'Add site'}
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+function SuggestedPanel({
+  catalogReady,
+  hasAddress,
+  match,
+  href,
+  broken,
+  onImgError,
+}: {
+  catalogReady: boolean;
+  hasAddress: boolean;
+  match: SvglRow | null;
+  href: string | null;
+  broken: boolean;
+  onImgError: () => void;
+}) {
+  if (!catalogReady) {
+    return <p className="field-hint">Looking up logos…</p>;
+  }
+  if (!hasAddress) {
+    return <p className="field-hint">Type an address to look up a logo.</p>;
+  }
+  if (!match || !href || broken) {
+    return (
+      <p className="field-hint">No logo in SVGL — save will use the site favicon.</p>
+    );
+  }
+  return (
+    <div className="svgl-suggest">
+      <img src={href} alt="" onError={onImgError} />
+      <div>
+        <p className="svgl-suggest-title">{match.title}</p>
+        <p className="field-hint">From SVGL. Save stores a local copy on this tile.</p>
+      </div>
     </div>
   );
 }
@@ -251,11 +362,13 @@ function safeNormalize(value: string): string {
 }
 
 function previewIconSrc(
-  kind: DialIcon['kind'],
+  kind: IconSource,
   pageUrl: string,
   upload: string,
   iconHref: string,
+  suggestionHref: string | null,
 ): string | null {
+  if (kind === 'suggested') return suggestionHref;
   if (kind === 'upload') return upload || null;
   if (kind === 'url') return iconHref.trim() || null;
   return pageUrl ? faviconUrl(pageUrl, 256) : null;
