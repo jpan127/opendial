@@ -32,7 +32,6 @@
   align-items: flex-start;
   gap: var(--od-space-5);
   min-width: 0;
-  font-family: var(--od-font-greeting);
 }
 
 .topbar-right {
@@ -54,6 +53,7 @@
 }
 
 .now-hero {
+  font-family: var(--od-font-greeting);
   font-size: var(--od-now-hero);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
