@@ -20,6 +20,23 @@ export function reorderDials(dials: Dial[], fromId: string, toId: string): Dial[
   return ordered.map((dial, index) => ({ ...dial, order: index }));
 }
 
+export function moveDialToEnd(dials: Dial[], fromId: string): Dial[] {
+  const ordered = sortedDials(dials);
+  const fromIndex = ordered.findIndex((dial) => dial.id === fromId);
+  if (fromIndex < 0 || fromIndex === ordered.length - 1) return dials;
+
+  const [moved] = ordered.splice(fromIndex, 1);
+  if (!moved) return dials;
+  ordered.push(moved);
+  return ordered.map((dial, index) => ({ ...dial, order: index }));
+}
+
+export function sameDialOrder(a: Dial[], b: Dial[]): boolean {
+  const left = sortedDials(a);
+  const right = sortedDials(b);
+  return left.length === right.length && left.every((dial, index) => dial.id === right[index]?.id);
+}
+
 export function createDial(input: {
   name: string;
   url: string;

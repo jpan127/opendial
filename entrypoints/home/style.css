@@ -126,6 +126,12 @@
   background: var(--od-surface-hover);
 }
 
+.icon-btn.is-on {
+  color: var(--od-accent);
+  border-color: color-mix(in srgb, var(--od-accent) 45%, var(--od-border));
+  background: color-mix(in srgb, var(--od-accent) 16%, var(--od-surface));
+}
+
 .text-btn {
   padding: 4px 8px;
   border-radius: var(--od-radius-sm);
@@ -294,6 +300,10 @@
   border: 0;
   background: transparent;
   color: var(--od-text);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
   transition: transform 0.2s ease;
 }
 
@@ -302,6 +312,46 @@
 }
 
 .dial-tile:hover .dial-icon {
+  box-shadow: 0 0 28px var(--od-hover-glow);
+}
+
+.dial-grid.is-reordering {
+  cursor: grabbing;
+}
+
+.dial-grid.is-reordering .dial-tile,
+.dial-grid.is-reordering .dial-tile:hover {
+  cursor: grabbing;
+  transform: none;
+}
+
+.dial-tile.is-dragging {
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.dial-tile.is-dragging .dial-icon {
+  box-shadow: none;
+}
+
+.dial-tile-ghost,
+.dial-tile-ghost * {
+  pointer-events: none !important;
+}
+
+.dial-tile-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  margin: 0;
+  opacity: 1;
+  transition: none;
+  will-change: transform;
+  filter: drop-shadow(0 16px 28px color-mix(in srgb, var(--od-text) 28%, transparent));
+}
+
+.dial-tile-ghost .dial-icon {
   box-shadow: 0 0 28px var(--od-hover-glow);
 }
 
@@ -321,6 +371,8 @@
   width: 58%;
   height: 58%;
   object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
 }
 
 .monogram,
@@ -336,6 +388,11 @@
   white-space: nowrap;
   font-size: 0.95rem;
   color: var(--od-text);
+}
+
+.add-tile {
+  cursor: pointer;
+  touch-action: auto;
 }
 
 .add-tile .add-icon {
@@ -834,6 +891,175 @@
 
 .switch.is-on .switch-knob {
   transform: translateX(16px);
+}
+
+.calc-wrap {
+  position: relative;
+}
+
+.calc-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: 220px 168px;
+  gap: 10px;
+  width: max-content;
+  padding: 10px;
+  border: 1px solid var(--od-border-strong);
+  border-radius: var(--od-radius-md);
+  background: var(--od-surface);
+  box-shadow: var(--od-shadow);
+}
+
+.calc-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.calc-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: var(--od-radius-sm);
+  background: color-mix(in srgb, var(--od-text) 5.5%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-expr {
+  min-height: 1.1em;
+  font-size: 0.75rem;
+  color: var(--od-text-faint);
+}
+
+.calc-display {
+  font-size: 1.7rem;
+  font-weight: 550;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  word-break: break-all;
+  text-align: right;
+}
+
+.calc-pad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.calc-key {
+  min-height: 42px;
+  padding: 0;
+  border: 1px solid var(--od-border);
+  border-radius: var(--od-radius-sm);
+  background: color-mix(in srgb, var(--od-text) 6%, transparent);
+  color: var(--od-text);
+  font-size: 1.05rem;
+  font-weight: 550;
+}
+
+.calc-key:hover {
+  background: var(--od-surface-hover);
+}
+
+.calc-key-wide {
+  grid-column: span 2;
+}
+
+.calc-key-fn {
+  color: var(--od-text-muted);
+  font-size: 0.92rem;
+}
+
+.calc-key-op {
+  color: var(--od-accent);
+}
+
+.calc-key-eq {
+  background: var(--od-accent);
+  color: var(--od-accent-text);
+  border-color: transparent;
+}
+
+.calc-key-eq:hover {
+  filter: brightness(1.08);
+}
+
+.calc-history {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  max-height: 292px;
+  padding: 6px 2px 4px 8px;
+  border-left: 1px solid var(--od-border);
+}
+
+.calc-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 6px 8px;
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--od-text-faint);
+}
+
+.calc-history-clear {
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 550;
+}
+
+.calc-history-empty {
+  margin: 0;
+  padding: 8px 6px;
+  font-size: 0.82rem;
+  color: var(--od-text-muted);
+}
+
+.calc-history-list {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.calc-history-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 6px;
+  border: 0;
+  border-radius: var(--od-radius-sm);
+  background: transparent;
+  text-align: right;
+}
+
+.calc-history-item:hover {
+  background: var(--od-surface-hover);
+}
+
+.calc-history-in {
+  font-size: 0.75rem;
+  color: var(--od-text-faint);
+}
+
+.calc-history-out {
+  font-size: 0.92rem;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
 }
 
 .seg-block {
