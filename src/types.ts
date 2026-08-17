@@ -50,6 +50,13 @@ export type WeatherCache = {
   fetchedAt: number;
 };
 
+export type CalcHistoryEntry = {
+  id: string;
+  input: string;
+  output: string;
+  at: number;
+};
+
 export type BackupPayload = {
   version: 1;
   theme: ThemeName;
@@ -65,6 +72,7 @@ export type BackupPayload = {
   forecastDays?: number;
   showTop10?: boolean;
   showRecentlyClosed?: boolean;
+  showCalculator?: boolean;
 };
 
 export const DEFAULT_DIAL_SIZE = 148;

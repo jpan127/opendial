@@ -21,6 +21,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     forecastDays,
     showTop10,
     showRecentlyClosed,
+    showCalculator,
   ] = await Promise.all([
     getLocal<ThemeName>(STORAGE_KEYS.theme, 'dark'),
     getLocal<Greeting>(STORAGE_KEYS.greeting, DEFAULT_GREETING),
@@ -35,6 +36,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     getLocal<number>(STORAGE_KEYS.forecastDays, DEFAULT_FORECAST_DAYS),
     getLocal<boolean>(STORAGE_KEYS.showTop10, true),
     getLocal<boolean>(STORAGE_KEYS.showRecentlyClosed, true),
+    getLocal<boolean>(STORAGE_KEYS.showCalculator, false),
   ]);
 
   return {
@@ -52,6 +54,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     forecastDays,
     showTop10,
     showRecentlyClosed,
+    showCalculator,
   };
 }
 
@@ -73,6 +76,7 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
     setLocal(STORAGE_KEYS.forecastDays, payload.forecastDays ?? DEFAULT_FORECAST_DAYS),
     setLocal(STORAGE_KEYS.showTop10, payload.showTop10 ?? true),
     setLocal(STORAGE_KEYS.showRecentlyClosed, payload.showRecentlyClosed ?? true),
+    setLocal(STORAGE_KEYS.showCalculator, payload.showCalculator ?? false),
   ]);
 }
 

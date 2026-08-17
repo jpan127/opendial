@@ -8,6 +8,7 @@ import type {
   TempUnit,
   ThemeName,
   WeatherCache,
+  CalcHistoryEntry,
 } from '@/src/types';
 import { DEFAULT_DIAL_SIZE, DEFAULT_FORECAST_DAYS, DEFAULT_GREETING_SIZE } from '@/src/types';
 
@@ -27,6 +28,8 @@ export const STORAGE_KEYS = {
   showTop10: 'opendial.showTop10',
   showRecentlyClosed: 'opendial.showRecentlyClosed',
   railCollapsed: 'opendial.railCollapsed',
+  showCalculator: 'opendial.showCalculator',
+  calcHistory: 'opendial.calcHistory',
   svglCatalog: 'opendial.svglCatalog',
   simpleIconsCatalog: 'opendial.simpleIconsCatalog',
 } as const;
@@ -151,4 +154,14 @@ const DEFAULT_RAIL: RailCollapsed = { top10: false, closed: false };
 
 export function useRailCollapsed() {
   return useLocalState<RailCollapsed>(STORAGE_KEYS.railCollapsed, DEFAULT_RAIL);
+}
+
+export function useShowCalculator() {
+  return useLocalState<boolean>(STORAGE_KEYS.showCalculator, false);
+}
+
+const EMPTY_CALC_HISTORY: CalcHistoryEntry[] = [];
+
+export function useCalcHistory() {
+  return useLocalState<CalcHistoryEntry[]>(STORAGE_KEYS.calcHistory, EMPTY_CALC_HISTORY);
 }

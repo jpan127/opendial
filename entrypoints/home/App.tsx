@@ -1,3 +1,4 @@
+import { Calculator } from '@/src/components/Calculator';
 import { DialGrid } from '@/src/components/DialGrid';
 import { Greeting } from '@/src/components/Greeting';
 import { LeftRail } from '@/src/components/LeftRail';
@@ -54,6 +55,7 @@ export default function App() {
             />
           </div>
           <div className="topbar-right">
+            <Calculator />
             <SettingsMenu />
             <ThemeToggle
               theme={theme}
