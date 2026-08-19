@@ -29,6 +29,7 @@ export const STORAGE_KEYS = {
   showRecentlyClosed: 'opendial.showRecentlyClosed',
   railCollapsed: 'opendial.railCollapsed',
   showCalculator: 'opendial.showCalculator',
+  showCalculatorWidget: 'opendial.showCalculatorWidget',
   calcHistory: 'opendial.calcHistory',
   svglCatalog: 'opendial.svglCatalog',
   simpleIconsCatalog: 'opendial.simpleIconsCatalog',
@@ -156,8 +157,14 @@ export function useRailCollapsed() {
   return useLocalState<RailCollapsed>(STORAGE_KEYS.railCollapsed, DEFAULT_RAIL);
 }
 
-export function useShowCalculator() {
+/** Whether the calculator panel is open. Kept so new tabs restore it. */
+export function useCalcOpen() {
   return useLocalState<boolean>(STORAGE_KEYS.showCalculator, false);
+}
+
+/** Whether the calculator button is shown. Defaults on; independent of open state. */
+export function useShowCalculator() {
+  return useLocalState<boolean>(STORAGE_KEYS.showCalculatorWidget, true);
 }
 
 const EMPTY_CALC_HISTORY: CalcHistoryEntry[] = [];

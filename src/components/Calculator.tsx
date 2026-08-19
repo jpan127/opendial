@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { evaluateExpression, groupDigits, groupExpression } from '@/src/lib/calculator';
-import { useCalcHistory, useShowCalculator } from '@/src/lib/storage';
+import { useCalcHistory, useCalcOpen, useShowCalculator } from '@/src/lib/storage';
 import type { CalcHistoryEntry } from '@/src/types';
 
 const MAX_HISTORY = 80;
 
 export function Calculator() {
-  const [open, setOpen] = useShowCalculator();
+  const [visible] = useShowCalculator();
+  const [open, setOpen] = useCalcOpen();
   const [history, setHistory] = useCalcHistory();
   const [expr, setExpr] = useState('');
   const [submittedError, setSubmittedError] = useState('');
@@ -43,6 +44,7 @@ export function Calculator() {
   }, [open]);
 
   useEffect(() => {
+    if (!visible) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.isComposing) return;
 
@@ -63,7 +65,7 @@ export function Calculator() {
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [open, setOpen]);
+  }, [open, setOpen, visible]);
 
   useEffect(() => {
     if (!open) return;
@@ -87,6 +89,8 @@ export function Calculator() {
     : submittedError
       ? submittedError
       : '\u00a0';
+
+  if (!visible) return null;
 
   return (
     <div className="calc-wrap" ref={wrapRef}>

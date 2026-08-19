@@ -66,9 +66,9 @@ Other scripts:
 - **Top 10** — the 10 most-visited domains from the last 90 days, with visit counts. Click the header to collapse, or turn the section off in the gear menu. Turning both sidebar sections off hides the rail. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
 - **Recently closed** — sits directly under Top 10. Click a row to restore that tab or window. Click the header to collapse, or turn the section off in the gear menu.
 - **Clock / Weather** — optional widgets in the top left, toggled from the gear menu. They share one card. The clock shows the date, time, and timezone. Weather uses the browser location, or click it to set a city. Shows city and state/region, today’s high/low, rain chance, UV, and US AQI. A **Forecast days** slider adds the next 1–6 days. Click **°C** / **°F** to switch units. Data from [Open-Meteo](https://open-meteo.com/).
-- **Calculator** — the keypad icon in the top right, or **Alt+C**. Type an expression and press Enter. History is stored locally. Whether the panel is open persists across new tabs.
+- **Calculator** — the keypad icon in the top right, or **Alt+C**. Type an expression and press Enter. History is stored locally. Hide the button from the gear menu. Open/closed state still persists across new tabs.
 - **Theme** — sun/moon in the top right. Defaults to dark and persists.
-- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, sidebar sections, tile size, greeting size, search engine, and calculator open state.
+- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, sidebar sections, tile size, greeting size, search engine, calculator visibility, and whether the calculator panel was open.
 
 ---
 

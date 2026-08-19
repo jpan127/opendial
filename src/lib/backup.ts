@@ -22,6 +22,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     showTop10,
     showRecentlyClosed,
     showCalculator,
+    showCalculatorWidget,
   ] = await Promise.all([
     getLocal<ThemeName>(STORAGE_KEYS.theme, 'dark'),
     getLocal<Greeting>(STORAGE_KEYS.greeting, DEFAULT_GREETING),
@@ -37,6 +38,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     getLocal<boolean>(STORAGE_KEYS.showTop10, true),
     getLocal<boolean>(STORAGE_KEYS.showRecentlyClosed, true),
     getLocal<boolean>(STORAGE_KEYS.showCalculator, false),
+    getLocal<boolean>(STORAGE_KEYS.showCalculatorWidget, true),
   ]);
 
   return {
@@ -55,6 +57,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     showTop10,
     showRecentlyClosed,
     showCalculator,
+    showCalculatorWidget,
   };
 }
 
@@ -77,6 +80,7 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
     setLocal(STORAGE_KEYS.showTop10, payload.showTop10 ?? true),
     setLocal(STORAGE_KEYS.showRecentlyClosed, payload.showRecentlyClosed ?? true),
     setLocal(STORAGE_KEYS.showCalculator, payload.showCalculator ?? false),
+    setLocal(STORAGE_KEYS.showCalculatorWidget, payload.showCalculatorWidget ?? true),
   ]);
 }
 

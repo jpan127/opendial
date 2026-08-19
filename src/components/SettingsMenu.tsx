@@ -4,6 +4,7 @@ import {
   useDialSize,
   useForecastDays,
   useGreetingSize,
+  useShowCalculator,
   useShowClock,
   useShowRecentlyClosed,
   useShowTop10,
@@ -28,6 +29,7 @@ export function SettingsMenu() {
   const [forecastDays, setForecastDays] = useForecastDays();
   const [showTop10, setShowTop10] = useShowTop10();
   const [showRecentlyClosed, setShowRecentlyClosed] = useShowRecentlyClosed();
+  const [showCalculator, setShowCalculator] = useShowCalculator();
   const fileRef = useRef<HTMLInputElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -88,6 +90,11 @@ export function SettingsMenu() {
               label="Weather"
               on={showWeather}
               onToggle={() => setShowWeather(!showWeather)}
+            />
+            <SwitchRow
+              label="Calculator"
+              on={showCalculator}
+              onToggle={() => setShowCalculator(!showCalculator)}
             />
             <div className={`seg-block${showWeather ? '' : ' is-disabled'}`}>
               <div className="seg-label">

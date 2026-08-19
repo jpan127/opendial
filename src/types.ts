@@ -73,6 +73,7 @@ export type BackupPayload = {
   showTop10?: boolean;
   showRecentlyClosed?: boolean;
   showCalculator?: boolean;
+  showCalculatorWidget?: boolean;
 };
 
 export const DEFAULT_DIAL_SIZE = 148;
