@@ -7,9 +7,10 @@
  * generic google slug. Preview uses cdn.simpleicons.org (brand color).
  * Save fetches the SVG from jsDelivr (CORS *) and rasterizes to PNG.
  */
+import { createCatalogLoader } from '@/src/lib/catalogCache';
 import { hostnameOf, normalizeUrl } from '@/src/lib/format';
+import { rasterizeSvgToPng } from '@/src/lib/iconRaster';
 import { STORAGE_KEYS, getLocal, setLocal } from '@/src/lib/storage';
-import { rasterizeSvgToPng } from '@/src/lib/svgl';
 
 export const SIMPLE_ICONS_CACHE_MS = 5 * 60 * 1000;
 const CATALOG_VERSION = 1;
@@ -80,17 +81,12 @@ const GOOGLE_PRODUCT_SLUG: Record<string, string> = {
   scholar: 'googlescholar',
 };
 
-let memory: SimpleIconsCatalog | null = null;
-let inflight: Promise<SimpleIconsCatalog | null> | null = null;
-
-export async function loadSimpleIconsCatalog(): Promise<SimpleIconsCatalog | null> {
-  if (memory && isFresh(memory)) return memory;
-  if (inflight) return inflight;
-  inflight = loadCatalogInner().finally(() => {
-    inflight = null;
-  });
-  return inflight;
-}
+export const loadSimpleIconsCatalog = createCatalogLoader<SimpleIconsCatalog>({
+  ttlMs: SIMPLE_ICONS_CACHE_MS,
+  readDisk,
+  fetchFresh: fetchCatalog,
+  writeDisk: (next) => setLocal(STORAGE_KEYS.simpleIconsCatalog, next),
+});
 
 export function googleProductSlug(pageUrl: string): string | null {
   let parsed: URL;
@@ -188,26 +184,6 @@ function titleToSlug(title: string): string {
     .replace(/[^a-z\d]/g, '');
 }
 
-async function loadCatalogInner(): Promise<SimpleIconsCatalog | null> {
-  const disk = await readDisk();
-  if (disk && isFresh(disk)) {
-    memory = disk;
-    return disk;
-  }
-  try {
-    const next = await fetchCatalog();
-    memory = next;
-    await setLocal(STORAGE_KEYS.simpleIconsCatalog, next);
-    return next;
-  } catch {
-    if (disk) {
-      memory = disk;
-      return disk;
-    }
-    return memory;
-  }
-}
-
 async function readDisk(): Promise<SimpleIconsCatalog | null> {
   const stored = await getLocal<SimpleIconsCatalog | null>(
     STORAGE_KEYS.simpleIconsCatalog,
@@ -215,10 +191,6 @@ async function readDisk(): Promise<SimpleIconsCatalog | null> {
   );
   if (!stored || stored.version !== CATALOG_VERSION || !stored.bySlug) return null;
   return stored;
-}
-
-function isFresh(catalog: SimpleIconsCatalog): boolean {
-  return Date.now() - catalog.fetchedAt < SIMPLE_ICONS_CACHE_MS;
 }
 
 async function fetchCatalog(): Promise<SimpleIconsCatalog> {

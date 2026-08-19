@@ -32,7 +32,9 @@
  * store SVG text and mint a blob: URL each load (would keep vectors).
  */
 import type { ThemeName } from '@/src/types';
+import { createCatalogLoader } from '@/src/lib/catalogCache';
 import { hostnameOf, normalizeUrl } from '@/src/lib/format';
+import { rasterizeRemoteToPng, rasterizeSvgToPng } from '@/src/lib/iconRaster';
 import { STORAGE_KEYS, getLocal, setLocal } from '@/src/lib/storage';
 
 export const SVGL_CACHE_MS = 5 * 60 * 1000;
@@ -59,17 +61,12 @@ type SvglApiItem = {
   route?: SvglApiRoute;
 };
 
-let memory: SvglCatalog | null = null;
-let inflight: Promise<SvglCatalog | null> | null = null;
-
-export async function loadSvglCatalog(): Promise<SvglCatalog | null> {
-  if (memory && isFresh(memory)) return memory;
-  if (inflight) return inflight;
-  inflight = loadCatalogInner().finally(() => {
-    inflight = null;
-  });
-  return inflight;
-}
+export const loadSvglCatalog = createCatalogLoader<SvglCatalog>({
+  ttlMs: SVGL_CACHE_MS,
+  readDisk,
+  fetchFresh: fetchCatalog,
+  writeDisk: (next) => setLocal(STORAGE_KEYS.svglCatalog, next),
+});
 
 export function matchSvgl(pageUrl: string, catalog: SvglCatalog | null): SvglRow | null {
   if (!catalog) return null;
@@ -124,8 +121,6 @@ export function svglIconHref(row: SvglRow, theme: ThemeName): string {
   return theme === 'light' ? row.light : row.dark;
 }
 
-const ICON_RASTER_SIZE = 256;
-
 /**
  * Persist a suggested mark as a PNG data URL.
  *
@@ -154,83 +149,6 @@ export async function fetchSvgAsDataUrl(href: string): Promise<string> {
       throw toSaveError(error);
     }
   }
-}
-
-export function isSvgDataUrl(value: string): boolean {
-  return value.startsWith('data:image/svg+xml');
-}
-
-export async function rasterizeSvgDataUrl(dataUrl: string): Promise<string> {
-  return rasterizeSvgToPng(svgTextFromDataUrl(dataUrl));
-}
-
-/** Draw SVG markup via a blob: URL. NTP blocks data:image/svg+xml as <img> src. */
-export async function rasterizeSvgToPng(svgText: string, size = ICON_RASTER_SIZE): Promise<string> {
-  const prepared = prepareSvg(svgText, size);
-  const objectUrl = URL.createObjectURL(
-    new Blob([prepared], { type: 'image/svg+xml;charset=utf-8' }),
-  );
-  try {
-    const image = await loadImage(objectUrl);
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Could not draw the suggested logo');
-    ctx.drawImage(image, 0, 0, size, size);
-    return canvas.toDataURL('image/png');
-  } finally {
-    URL.revokeObjectURL(objectUrl);
-  }
-}
-
-function prepareSvg(svgText: string, size: number): string {
-  let svg = svgText.trim();
-  if (!/\sxmlns=/.test(svg)) {
-    svg = svg.replace(/<svg\b/i, '<svg xmlns="http://www.w3.org/2000/svg"');
-  }
-  if (!/<svg[^>]*\bwidth=/i.test(svg)) {
-    svg = svg.replace(/<svg\b/i, `<svg width="${size}" height="${size}"`);
-  }
-  return svg;
-}
-
-function svgTextFromDataUrl(dataUrl: string): string {
-  const comma = dataUrl.indexOf(',');
-  const payload = comma >= 0 ? dataUrl.slice(comma + 1) : '';
-  if (/;base64,/i.test(dataUrl)) {
-    const binary = atob(payload);
-    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-    return new TextDecoder().decode(bytes);
-  }
-  return decodeURIComponent(payload);
-}
-
-/**
- * Draw an HTTPS SVG into a canvas. `crossOrigin = anonymous` is required so
- * the canvas is not tainted and toDataURL('image/png') is allowed. Only pass
- * api.svgl.app URLs — svgl.app would fail this CORS check.
- */
-async function rasterizeRemoteToPng(url: string, size = ICON_RASTER_SIZE): Promise<string> {
-  const image = await loadImage(url, 'anonymous');
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Could not draw the suggested logo');
-  ctx.drawImage(image, 0, 0, size, size);
-  return canvas.toDataURL('image/png');
-}
-
-function loadImage(src: string, crossOrigin?: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    // Must set crossOrigin before src, or the first request is a no-CORS load.
-    if (crossOrigin) image.crossOrigin = crossOrigin;
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error('Could not draw the suggested logo'));
-    image.src = src;
-  });
 }
 
 /**
@@ -269,36 +187,10 @@ function toSaveError(error: unknown): Error {
   return error instanceof Error ? error : new Error('Could not download the suggested logo');
 }
 
-async function loadCatalogInner(): Promise<SvglCatalog | null> {
-  const disk = await readDisk();
-  if (disk && isFresh(disk)) {
-    memory = disk;
-    return disk;
-  }
-
-  try {
-    const next = await fetchCatalog();
-    memory = next;
-    await setLocal(STORAGE_KEYS.svglCatalog, next);
-    return next;
-  } catch {
-    if (disk) {
-      memory = disk;
-      return disk;
-    }
-    if (memory) return memory;
-    return null;
-  }
-}
-
 async function readDisk(): Promise<SvglCatalog | null> {
   const stored = await getLocal<SvglCatalog | null>(STORAGE_KEYS.svglCatalog, null);
   if (!stored || stored.version !== CATALOG_VERSION || !stored.byHost) return null;
   return stored;
-}
-
-function isFresh(catalog: SvglCatalog): boolean {
-  return Date.now() - catalog.fetchedAt < SVGL_CACHE_MS;
 }
 
 async function fetchCatalog(): Promise<SvglCatalog> {

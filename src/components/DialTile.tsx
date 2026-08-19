@@ -2,7 +2,7 @@ import type { MouseEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type { Dial, DialIcon } from '@/src/types';
 import { faviconUrl, hostnameOf, monogram } from '@/src/lib/format';
-import { isSvgDataUrl, rasterizeSvgDataUrl } from '@/src/lib/svgl';
+import { isSvgDataUrl, rasterizeSvgDataUrl } from '@/src/lib/iconRaster';
 
 const DRAG_THRESHOLD_PX = 8;
 
