@@ -1,0 +1,267 @@
+/* Clock and weather card. */
+
+.clock {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--od-space-1);
+  width: max-content;
+  max-width: 100%;
+  padding: 2px 4px 2px 2px;
+  color: var(--od-text);
+}
+
+.now-hero {
+  font-family: var(--od-font-greeting);
+  font-size: var(--od-now-hero);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.clock-time {
+  display: flex;
+  align-items: baseline;
+}
+
+.clock-colon {
+  margin: 0 0.02em;
+  color: var(--od-text-muted);
+}
+
+.clock-meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--od-space-2);
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--od-text-muted);
+}
+
+.clock-period {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.clock-zone {
+  font-weight: 500;
+  color: var(--od-text-faint);
+}
+
+.clock-date {
+  font-size: 0.88rem;
+  color: var(--od-text-faint);
+}
+
+.now-card {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 12px 12px 12px 14px;
+  border-radius: var(--od-radius-lg);
+  background: color-mix(in srgb, var(--od-surface) 78%, transparent);
+  border: 1px solid var(--od-border);
+  box-shadow: var(--od-shadow);
+}
+
+.now-rule {
+  align-self: stretch;
+  width: 0;
+  min-height: 4rem;
+  margin: 4px 18px;
+  border-left: 1px solid color-mix(in srgb, var(--od-text) 28%, transparent);
+  flex-shrink: 0;
+}
+
+.weather-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.weather-top,
+.weather-edit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: var(--od-space-3);
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--od-text);
+  text-align: left;
+}
+
+.weather-glyph {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  color: var(--od-accent);
+}
+
+.weather-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.weather-temp-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--od-space-2);
+}
+
+.weather-temp {
+  color: var(--od-text);
+}
+
+.weather-cond {
+  font-size: 0.92rem;
+  color: var(--od-text-muted);
+}
+
+.weather-city {
+  font-size: 0.82rem;
+  color: var(--od-text-faint);
+}
+
+.weather-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--od-text-muted);
+}
+
+.aqi {
+  padding: 1px 7px;
+  border-radius: var(--od-radius-pill);
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.aqi-good {
+  background: rgb(46 180 96 / 0.18);
+  color: #6ee7a0;
+}
+
+.aqi-moderate {
+  background: rgb(230 190 40 / 0.2);
+  color: #f5d76e;
+}
+
+.aqi-sensitive {
+  background: rgb(230 140 40 / 0.2);
+  color: #ffb36b;
+}
+
+.aqi-unhealthy,
+.aqi-very-unhealthy,
+.aqi-hazardous {
+  background: rgb(220 70 70 / 0.2);
+  color: #ff8d8d;
+}
+
+:root[data-theme='light'] .aqi-good {
+  color: #157a3e;
+}
+
+:root[data-theme='light'] .aqi-moderate {
+  color: #8a6a00;
+}
+
+:root[data-theme='light'] .aqi-sensitive {
+  color: #9a4b00;
+}
+
+:root[data-theme='light'] .aqi-unhealthy,
+:root[data-theme='light'] .aqi-very-unhealthy,
+:root[data-theme='light'] .aqi-hazardous {
+  color: #b42323;
+}
+
+.weather-edit input {
+  width: 160px;
+  padding: 6px 10px;
+  border: 1px solid var(--od-border-strong);
+  border-radius: var(--od-radius-sm);
+  background: var(--od-surface);
+}
+
+.unit-seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex-shrink: 0;
+  padding: 3px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--od-text) 8%, transparent);
+}
+
+.unit-seg button {
+  height: 28px;
+  min-width: 38px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--od-text-muted);
+}
+
+.unit-seg button.is-on {
+  background: var(--od-surface);
+  color: var(--od-text);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--od-text) 16%, transparent);
+}
+
+.forecast-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--od-space-1);
+}
+
+.forecast-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 3.1rem;
+  padding: 4px 6px 6px;
+  border-radius: var(--od-radius-sm);
+  color: var(--od-text-muted);
+}
+
+.forecast-name {
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.forecast-glyph {
+  width: 22px;
+  height: 22px;
+  color: var(--od-accent);
+}
+
+.forecast-hi {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--od-text);
+}
+
+.forecast-lo {
+  font-size: 0.72rem;
+  color: var(--od-text-faint);
+}

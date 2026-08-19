@@ -1,0 +1,394 @@
+/* Add/edit dial modal and suggested logos. */
+
+.field-hint {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--od-text-faint);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--od-bg) 55%, rgb(0 0 0 / 0.42));
+  backdrop-filter: blur(10px);
+  animation: modal-fade 0.16s ease;
+}
+
+.modal {
+  width: min(620px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--od-space-3);
+  padding: 12px 18px 18px;
+  border: 1px solid var(--od-border-strong);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--od-surface) 92%, transparent);
+  box-shadow:
+    0 24px 80px color-mix(in srgb, var(--od-text) 14%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--od-text) 4%, transparent);
+  animation: modal-rise 0.2s ease;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.modal-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--od-danger) 40%, var(--od-border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--od-danger) 14%, var(--od-surface));
+}
+
+.modal-alert p {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 550;
+  line-height: 1.4;
+  color: var(--od-text);
+}
+
+.modal-alert-mark {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--od-danger);
+  color: var(--od-accent-text);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.modal-close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--od-text) 6%, transparent);
+  color: var(--od-text-muted);
+}
+
+.modal-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.modal-close:hover {
+  color: var(--od-text);
+  background: var(--od-surface-hover);
+}
+
+.modal-body {
+  display: grid;
+  grid-template-columns: var(--od-dial-size) 1fr;
+  gap: var(--od-space-5);
+  align-items: center;
+}
+
+.modal-preview {
+  pointer-events: none;
+}
+
+.modal-preview:hover,
+.modal-preview:hover .dial-icon {
+  transform: none;
+  box-shadow: none;
+}
+
+.modal-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--od-text-muted);
+}
+
+.modal-field > span,
+.modal-field-label {
+  padding-inline: 12px;
+}
+
+.modal input[type='text'],
+.modal input:not([type]),
+.modal input[type='url'] {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--od-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--od-bg) 72%, var(--od-surface));
+  color: var(--od-text);
+  font-weight: 500;
+}
+
+.modal input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--od-accent) 55%, var(--od-border-strong));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--od-accent) 18%, transparent);
+}
+
+.modal-seg {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  padding: 3px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--od-text) 8%, transparent);
+}
+
+.modal-seg button {
+  height: 32px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--od-text-muted);
+}
+
+.modal-seg button.is-on {
+  background: var(--od-surface);
+  color: var(--od-text);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--od-text) 16%, transparent);
+}
+
+.icon-drop {
+  display: grid;
+  min-height: 52px;
+  border: 1px dashed var(--od-border-strong);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--od-bg) 55%, transparent);
+}
+
+.icon-drop.is-over,
+.icon-drop.has-file {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--od-accent) 40%, var(--od-border));
+}
+
+.icon-drop-btn {
+  padding: 12px;
+  border: 0;
+  background: transparent;
+  color: var(--od-text-muted);
+  font-size: 0.8rem;
+  font-weight: 550;
+}
+
+.icon-drop-btn:hover {
+  color: var(--od-text);
+}
+
+.suggest-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--od-space-2);
+}
+
+.suggest-kicker {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 650;
+  color: var(--od-text);
+}
+
+.suggest-steps {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--od-space-2);
+}
+
+.suggest-row {
+  display: flex;
+  align-items: stretch;
+  min-height: 56px;
+  border: 1px solid var(--od-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--od-bg) 40%, var(--od-surface));
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.suggest-row:has(.suggest-step.is-yes) {
+  border-color: color-mix(in srgb, var(--od-accent) 45%, var(--od-border));
+  background: color-mix(in srgb, var(--od-accent) 14%, var(--od-surface));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--od-accent) 12%, transparent);
+}
+
+.suggest-row:has(.suggest-step.is-no) {
+  border-color: color-mix(in srgb, var(--od-danger) 28%, var(--od-border));
+  background: color-mix(in srgb, var(--od-danger) 8%, var(--od-surface));
+  opacity: 0.72;
+}
+
+.suggest-row:has(.suggest-step:not(:disabled):hover) {
+  border-color: color-mix(in srgb, var(--od-text) 18%, var(--od-border));
+  background: var(--od-surface-hover);
+}
+
+.suggest-row:has(.suggest-step.is-yes:not(:disabled):hover) {
+  border-color: color-mix(in srgb, var(--od-accent) 55%, var(--od-border));
+  background: color-mix(in srgb, var(--od-accent) 18%, var(--od-surface));
+}
+
+.suggest-step {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: var(--od-space-3);
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 4px 8px 10px;
+  border: 0;
+  border-radius: 14px 0 0 14px;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.suggest-step:disabled {
+  cursor: default;
+}
+
+.suggest-step:focus-visible {
+  outline: 2px solid var(--od-accent);
+  outline-offset: -2px;
+}
+
+.suggest-step-thumb {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--od-tile);
+  box-shadow: inset 0 0 0 1px var(--od-border);
+}
+
+.suggest-step-thumb img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.suggest-step-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.suggest-step-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.86rem;
+  font-weight: 650;
+  color: var(--od-text);
+}
+
+.suggest-step-source {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--od-text-faint);
+}
+
+.suggest-step-link {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  flex-shrink: 0;
+  margin: 6px 6px 6px 0;
+  border-radius: 10px;
+  color: var(--od-text-faint);
+}
+
+.suggest-step-link svg {
+  width: 15px;
+  height: 15px;
+}
+
+.suggest-step-link:hover {
+  color: var(--od-accent);
+  background: color-mix(in srgb, var(--od-accent) 12%, transparent);
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--od-space-2);
+  padding-top: 4px;
+}
+
+.modal-actions .danger-btn {
+  margin-right: auto;
+}
+
+.modal-actions .primary-btn,
+.modal-actions .danger-btn,
+.modal-actions .text-btn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 11px;
+  font-weight: 650;
+}
+
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .modal-body {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}

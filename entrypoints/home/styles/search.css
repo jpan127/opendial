@@ -1,0 +1,81 @@
+/* Search pill and engine menu. */
+
+.search-pill {
+  display: flex;
+  align-items: center;
+  width: var(--od-search-width);
+  height: var(--od-search-height);
+  padding: 0 6px 0 4px;
+  border: 1px solid var(--od-border-strong);
+  border-radius: var(--od-radius-pill);
+  background: var(--od-search-bg);
+  box-shadow: var(--od-shadow);
+}
+
+.engine-wrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.engine-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--od-space-1);
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--od-radius-pill);
+  background: transparent;
+  color: var(--od-text-muted);
+  font-size: 0.85rem;
+}
+
+.engine-btn:hover {
+  background: var(--od-surface-hover);
+  color: var(--od-text);
+}
+
+.chevron {
+  font-size: 0.7rem;
+}
+
+.engine-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 5;
+  min-width: 140px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--od-border-strong);
+  border-radius: var(--od-radius-md);
+  background: var(--od-surface);
+  box-shadow: var(--od-shadow);
+}
+
+.engine-menu button {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: var(--od-radius-sm);
+  background: transparent;
+  text-align: left;
+}
+
+.engine-menu button:hover,
+.engine-menu button.active {
+  background: var(--od-surface-hover);
+}
+
+.search-pill input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  outline: none;
+}

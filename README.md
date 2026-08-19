@@ -85,7 +85,7 @@ To hide it:
 
 ## Restyle
 
-Colors, glow, grain, fonts, rail width, and tile size live in [`src/theme/tokens.css`](src/theme/tokens.css).
+Colors, glow, grain, fonts, rail width, and tile size live in [`src/theme/tokens.css`](src/theme/tokens.css). Layout and component rules are split under [`entrypoints/home/styles/`](entrypoints/home/styles/).
 
 Change the CSS variables there (`--od-bg`, `--od-glow`, `--od-font-greeting`, `--od-rail-width`, …). Components only use `var(--od-*)`. Dark and light themes are both in that file.
 

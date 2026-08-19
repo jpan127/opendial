@@ -1,0 +1,132 @@
+/* Expression calculator panel. */
+
+.calc-wrap {
+  position: relative;
+}
+
+.calc-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(360px, calc(100vw - 48px));
+  padding: 10px;
+  border: 1px solid var(--od-border-strong);
+  border-radius: var(--od-radius-md);
+  background: var(--od-surface);
+  box-shadow: var(--od-shadow);
+}
+
+.calc-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.calc-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--od-border-strong);
+  border-radius: var(--od-radius-sm);
+  background: color-mix(in srgb, var(--od-text) 5.5%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.calc-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--od-accent) 55%, transparent);
+  outline-offset: 1px;
+}
+
+.calc-status {
+  margin: 0;
+  min-height: 1.2em;
+  padding: 0 4px;
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--od-text-faint);
+}
+
+.calc-status.is-ok {
+  color: var(--od-text);
+  font-weight: 550;
+}
+
+.calc-status.is-err {
+  color: var(--od-danger);
+}
+
+.calc-history {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  max-height: 220px;
+  padding-top: 4px;
+  border-top: 1px solid var(--od-border);
+}
+
+.calc-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--od-space-2);
+  padding: 2px 6px 8px;
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--od-text-faint);
+}
+
+.calc-history-clear {
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 550;
+}
+
+.calc-history-empty {
+  margin: 0;
+  padding: 8px 6px;
+  font-size: 0.82rem;
+  color: var(--od-text-muted);
+}
+
+.calc-history-list {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.calc-history-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 6px;
+  border: 0;
+  border-radius: var(--od-radius-sm);
+  background: transparent;
+  text-align: right;
+}
+
+.calc-history-item:hover {
+  background: var(--od-surface-hover);
+}
+
+.calc-history-in {
+  font-size: 0.75rem;
+  color: var(--od-text-faint);
+}
+
+.calc-history-out {
+  font-size: 0.92rem;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
