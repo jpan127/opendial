@@ -1,6 +1,6 @@
 # OpenDial
 
-A personal Chrome new tab page: speed-dial tiles, a compact Google / ChatGPT / Gemini search bar, most-visited domains, recently closed tabs, local time, and weather.
+A personal Chrome new tab page: speed-dial tiles, a compact Google / ChatGPT / Gemini search bar, most-visited domains, recently closed tabs, local time, weather, and a small calculator.
 
 This is **not** on the Chrome Web Store. Load it unpacked. All dials and settings stay in `chrome.storage.local` on your machine.
 
@@ -12,7 +12,6 @@ Chrome cannot override the New Tab page in incognito windows.
 
 - Google Chrome (or another Chromium browser)
 - [Node.js](https://nodejs.org/) 22 or newer (`npm` comes with it)
-- Git (see [Upgrade Git?](#upgrade-git) below)
 
 ---
 
@@ -59,16 +58,17 @@ Other scripts:
 
 ## Using OpenDial
 
-- **Greeting** — click `hello` / your name to edit both words. Press Enter or click outside to save. Escape cancels.
-- **Search** — type in the pill and press Enter. The small dropdown on the left picks Google, ChatGPT, or Gemini. Press `/` to focus the bar. There is no mic button.
+- **Greeting** — click `hello` / your name to edit both words. Press Enter or click outside to save. Escape cancels. Greeting size is a slider in the gear menu.
+- **Search** — type in the pill and press Enter. The dropdown on the left picks Google, ChatGPT, or Gemini. Press `/` to focus the bar when it is not already focused. Press Tab / Shift+Tab in the field to cycle engines. There is no mic button.
   - Google: `google.com/search?q=`
   - ChatGPT / Gemini: OpenDial opens the site and fills the prompt box (you need to be signed in)
-- **Dials** — click a tile to open it. Ctrl/Cmd-click opens a new tab. The dashed **+** tile adds a site. Right-click a tile to edit or delete. Drag tiles to reorder. Icon choices: the site’s favicon (the small tab icon), an uploaded image, or an image URL. Tile size and greeting size are sliders in the gear menu (shown in pixels).
-- **Top 10** — the 10 most-visited domains from the last 90 days, with visit counts. Click the header to collapse, or turn the section off in the gear menu. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
+- **Dials** — click a tile to open it. Ctrl/Cmd-click opens a new tab. The dashed **+** tile adds a site. Right-click a tile to edit or delete. Drag tiles to reorder. Icon choices: **Suggested** (SVGL, then Simple Icons, then the site favicon), the site’s favicon, an uploaded image, or an image URL. Suggested logos are downloaded once and stored as local PNGs. Tile size is a slider in the gear menu.
+- **Top 10** — the 10 most-visited domains from the last 90 days, with visit counts. Click the header to collapse, or turn the section off in the gear menu. Turning both sidebar sections off hides the rail. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
 - **Recently closed** — sits directly under Top 10. Click a row to restore that tab or window. Click the header to collapse, or turn the section off in the gear menu.
 - **Clock / Weather** — optional widgets in the top left, toggled from the gear menu. They share one card. The clock shows the date, time, and timezone. Weather uses the browser location, or click it to set a city. Shows city and state/region, today’s high/low, rain chance, UV, and US AQI. A **Forecast days** slider adds the next 1–6 days. Click **°C** / **°F** to switch units. Data from [Open-Meteo](https://open-meteo.com/).
+- **Calculator** — the keypad icon in the top right, or **Alt+C**. Type an expression and press Enter. History is stored locally. Whether the panel is open persists across new tabs.
 - **Theme** — sun/moon in the top right. Defaults to dark and persists.
-- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, sidebar sections, tile size, greeting size, and search engine.
+- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, sidebar sections, tile size, greeting size, search engine, and calculator open state.
 
 ---
 
@@ -105,70 +105,7 @@ Change the CSS variables there (`--od-bg`, `--od-glow`, `--od-font-greeting`, `-
 | Host access to Open-Meteo | Weather and air quality, no API key |
 | Host access to BigDataCloud | Reverse-geocode GPS to city/state |
 | Host access to ChatGPT / Gemini | Fill the prompt when you search with those engines |
-
----
-
-## Publish on GitHub (link a remote)
-
-You already have a local git repo. A **remote** is just a local nickname (usually `origin`) for a GitHub repository URL. You do **not** create a special “remote” object on GitHub — you create a **repository**, then point this folder at it.
-
-### Best way: GitHub CLI (no website first)
-
-You do **not** need to create the repo in the GitHub UI first.
-
-1. Install [GitHub CLI](https://cli.github.com/)
-2. In a terminal:
-
-```bash
-gh auth login
-cd C:\Users\JP\opendial
-gh repo create opendial --source=. --public --push
-```
-
-That creates `https://github.com/<you>/opendial`, sets `origin`, and pushes `master` in one step.
-
-Use `--private` instead of `--public` if you do not want it public.
-
-### Other way: GitHub website, then link
-
-If you would rather click around:
-
-1. On [github.com/new](https://github.com/new), create a repo named `opendial`
-2. Leave it **empty** — do not add a README, `.gitignore`, or license (this repo already has those; adding them on GitHub makes the first push messy)
-3. Then in this folder:
-
-```bash
-git remote add origin https://github.com/<you>/opendial.git
-git push -u origin master
-```
-
-HTTPS will prompt you to sign in (a [personal access token](https://github.com/settings/tokens) if GitHub rejects your password). SSH is the same idea with `git@github.com:<you>/opendial.git` if you already use SSH keys.
-
-After that, later updates are:
-
-```bash
-git push
-```
-
-### Optional: rename `master` to `main`
-
-GitHub’s default branch name is `main`. This repo currently uses `master`. Either is fine. To match GitHub before the first push:
-
-```bash
-git branch -m master main
-git push -u origin main
-```
-
-If you already pushed `master`, you can still rename later in the GitHub repo settings (Settings → General → Default branch).
-
----
-
-## Upgrade Git?
-
-A current [Git for Windows](https://git-scm.com/download/win) (2.4x / 2.5x) is recommended. Check with `git --version`.
-
-The GitHub CLI (`gh`) is separate. If `gh` is missing in an old terminal, open a new one (or restart Cursor) so it picks up `C:\Program Files\GitHub CLI`. Git Bash can also load it from `~/.bashrc`.
-
----
+| Host access to SVGL | Suggested brand logos |
+| Host access to jsDelivr / Simple Icons | Fallback suggested logos |
 
 Weather data by [Open-Meteo](https://open-meteo.com/).
