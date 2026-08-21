@@ -1,3 +1,14 @@
+// Search bar for the new tab (Google, ChatGPT, or Gemini).
+//
+// The pill is the primary way to leave the page: Enter submits. The left
+// dropdown picks the engine (persisted). Tab / Shift+Tab in the field cycle
+// engines instead of moving focus. `/` focuses the field unless the caret
+// is already in an input.
+//
+// Focus on load is intentional: `entrypoints/newtab` redirects to this
+// page because Chrome otherwise keeps the omnibox focused on a new-tab
+// override. Google navigates immediately; ChatGPT/Gemini stash the prompt
+// and open the site so a content script can fill the composer.
 import { useEffect, useRef, useState } from 'react';
 import type { SearchEngine } from '@/src/types';
 import { ENGINES, engineLabel, submitSearch } from '@/src/lib/search';
@@ -98,7 +109,7 @@ export function SearchBar({ engine, onEngineChange }: Props) {
           if (event.key !== 'Tab' || event.metaKey || event.ctrlKey || event.altKey) {
             return;
           }
-          event.preventDefault();
+          event.preventDefault(); // keep Tab from leaving the field
           cycleEngine(event.shiftKey);
         }}
         placeholder="Search the web…"

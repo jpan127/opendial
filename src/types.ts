@@ -1,3 +1,6 @@
+// Persisted shapes for chrome.storage.local and backup JSON.
+// Suggested logos are never stored as their own kind — Save writes `upload` + `via`.
+
 export type ThemeName = 'dark' | 'light';
 
 export type SearchEngine = 'google' | 'chatgpt' | 'gemini';
@@ -57,6 +60,7 @@ export type CalcHistoryEntry = {
   at: number;
 };
 
+// Version 1 backup. Older files omit later optional fields; import fills defaults.
 export type BackupPayload = {
   version: 1;
   theme: ThemeName;
@@ -72,7 +76,9 @@ export type BackupPayload = {
   forecastDays?: number;
   showTop10?: boolean;
   showRecentlyClosed?: boolean;
+  // Calculator panel open (not button visibility). Key kept for existing backups.
   showCalculator?: boolean;
+  // Gear-menu toggle for the calculator button. Missing ⇒ shown.
   showCalculatorWidget?: boolean;
 };
 
@@ -88,6 +94,7 @@ export const DEFAULT_FORECAST_DAYS = 0;
 export const MIN_FORECAST_DAYS = 0;
 export const MAX_FORECAST_DAYS = 6;
 
+// Sidebar section headers; `true` means collapsed.
 export type RailCollapsed = {
   top10: boolean;
   closed: boolean;

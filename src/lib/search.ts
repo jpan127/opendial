@@ -1,3 +1,5 @@
+// Search submit. Google navigates immediately.
+// ChatGPT/Gemini stash the prompt, then open the site so the content script can fill the box.
 import type { SearchEngine } from '@/src/types';
 import {
   CHATGPT_QUERY_KEY,

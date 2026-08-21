@@ -1,3 +1,13 @@
+// Gear menu for page chrome that is not edited in place.
+//
+// Widgets: Clock, Weather, Calculator button, forecast day count.
+// Layout: greeting size and dial tile size (CSS variables on `<html>`).
+// Sidebar: show/hide Top 10 and Recently closed (hiding both removes the rail).
+// Backup: export/import JSON of dials and settings (not weather cache,
+// logo catalogs, or calculator history).
+//
+// Click-outside and Escape close the menu. Import replaces stored settings
+// in place; a bad file alerts and leaves the current data alone.
 import { useEffect, useRef, useState } from 'react';
 import { downloadBackup, exportBackup, importBackup } from '@/src/lib/backup';
 import {

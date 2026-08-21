@@ -1,3 +1,8 @@
+// Small weather icon for the current or forecast condition.
+//
+// Maps Open-Meteo WMO `weather_code` values to a handful of SVG glyphs
+// (sun, partly cloudy, cloud, rain, snow, storm, fog). Used by `Weather`
+// for today’s condition and each forecast day. Decorative only (`aria-hidden`).
 export function WeatherGlyph({
   code,
   className = 'weather-glyph',

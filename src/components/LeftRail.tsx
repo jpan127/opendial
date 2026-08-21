@@ -1,3 +1,14 @@
+// Left sidebar: browsing shortcuts that are not the dial grid.
+//
+// Two optional sections, both togglable in Settings:
+// - Top 10 — most-visited domains (90 days of history, `topSites` fallback).
+//   Hosts already on the dial grid are hidden. Click opens the site.
+// - Recently closed — Chrome session restore. Click restores that tab or
+//   window. New-tab / extension URLs are omitted.
+//
+// Section headers collapse the list (that state is stored). Turning both
+// sections off returns `null` so the page is a single column. The scrollbar
+// is shown only while the list is scrolling.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { browser } from 'wxt/browser';
 import { faviconUrl, formatCount, hostnameOf, monogram, relativeTime } from '@/src/lib/format';
@@ -132,7 +143,7 @@ function RailSection({
           ref={listRef}
           className={`rail-list${scrolling ? ' is-scrolling' : ''}`}
           onScroll={() => {
-            setScrolling(true);
+            setScrolling(true); // CSS shows the scrollbar only while scrolling
             window.clearTimeout(timer.current);
             timer.current = window.setTimeout(() => setScrolling(false), 700);
           }}

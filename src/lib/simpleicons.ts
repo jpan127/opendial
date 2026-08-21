@@ -1,12 +1,10 @@
-/**
- * Simple Icons fallback when SVGL has no row for the dial URL.
- *
- * Catalog is the npm JSON on jsDelivr (not GitHub). Match hostname → slug
- * (github.com → github), then aliases in the file. Product hosts like
- * drive.google.com (or google.com/drive) map to googledrive before the
- * generic google slug. Preview uses cdn.simpleicons.org (brand color).
- * Save fetches the SVG from jsDelivr (CORS *) and rasterizes to PNG.
- */
+// Simple Icons fallback when SVGL has no row for the dial URL.
+//
+// Catalog is the npm JSON on jsDelivr (not GitHub). Match hostname → slug
+// (github.com → github), then aliases in the file. Product hosts like
+// drive.google.com (or google.com/drive) map to googledrive before the
+// generic google slug. Preview uses cdn.simpleicons.org (brand color).
+// Save fetches the SVG from jsDelivr (CORS *) and rasterizes to PNG.
 import { createCatalogLoader } from '@/src/lib/catalogCache';
 import { hostnameOf, normalizeUrl } from '@/src/lib/format';
 import { rasterizeSvgToPng } from '@/src/lib/iconRaster';
@@ -37,6 +35,7 @@ type SimpleIconsApiItem = {
 };
 
 const HOST_SLUG: Record<string, string> = {
+  // Hosts whose first label is not the Simple Icons slug (youtu.be, x.com, …).
   'youtu.be': 'youtube',
   'youtube.com': 'youtube',
   'x.com': 'x',
@@ -61,7 +60,7 @@ const HOST_SLUG: Record<string, string> = {
   'discord.gg': 'discord',
 };
 
-/** Subdomain or first path segment on google.com → Simple Icons slug. */
+// Subdomain or first path segment on google.com → Simple Icons slug.
 const GOOGLE_PRODUCT_SLUG: Record<string, string> = {
   drive: 'googledrive',
   docs: 'googledocs',
@@ -88,6 +87,7 @@ export const loadSimpleIconsCatalog = createCatalogLoader<SimpleIconsCatalog>({
   writeDisk: (next) => setLocal(STORAGE_KEYS.simpleIconsCatalog, next),
 });
 
+// drive.google.com or google.com/drive → googledrive, etc.
 export function googleProductSlug(pageUrl: string): string | null {
   let parsed: URL;
   try {
@@ -120,6 +120,7 @@ export function matchSimpleIcon(
   return null;
 }
 
+// Brand-colored SVG for the suggested preview <img>.
 export function simpleIconPreviewHref(row: SimpleIconRow): string {
   return `https://cdn.simpleicons.org/${row.slug}/${row.hex}`;
 }
@@ -172,6 +173,7 @@ function slugCandidates(pageUrl: string): string[] {
 }
 
 function titleToSlug(title: string): string {
+  // Same rules as simple-icons’ slugify (plus/dot/and, strip diacritics).
   const replacements: Record<string, string> = {
     '+': 'plus',
     '.': 'dot',
@@ -216,7 +218,7 @@ function ingest(items: SimpleIconsApiItem[]): Record<string, SimpleIconRow> {
     bySlug[slug] = row;
     for (const alias of [...(item.aliases?.aka ?? []), ...(item.aliases?.old ?? [])]) {
       const aliasSlug = titleToSlug(alias);
-      if (aliasSlug && !bySlug[aliasSlug]) bySlug[aliasSlug] = row;
+      if (aliasSlug && !bySlug[aliasSlug]) bySlug[aliasSlug] = row; // first slug wins
     }
   }
   return bySlug;

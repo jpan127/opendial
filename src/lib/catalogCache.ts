@@ -1,6 +1,6 @@
+// RAM + chrome.storage TTL cache with in-flight coalescing.
+// Network errors fall back to a stale disk/RAM copy rather than failing the modal.
 type CatalogLike = { fetchedAt: number };
-
-/** RAM + disk TTL cache with in-flight coalescing. Used by SVGL and Simple Icons. */
 export function createCatalogLoader<T extends CatalogLike>(opts: {
   ttlMs: number;
   readDisk: () => Promise<T | null>;

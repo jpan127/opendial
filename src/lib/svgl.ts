@@ -1,36 +1,34 @@
-/**
- * SVGL brand marks for speed-dial tiles.
- *
- * Catalog vs files
- * SVGL's API is a JSON phone book (~665 brands: title, site url, SVG hrefs),
- * not a folder of images. We cache that index 5 minutes in RAM +
- * chrome.storage.local (opendial.svglCatalog). It is not part of backup JSON.
- * Matching is local: hostname, then longest path prefix (github.com vs
- * github.com/features/copilot). Product hosts also search the parent domain
- * (drive.google.com uses google.com/drive). Homepage `/` on the parent is
- * ignored so Drive does not fall through to the Google mark. Do not use
- * ?search= — that is title search and ranks Copilot first for "github".
- *
- * When we hit the network
- * Add site loads the catalog when the modal opens (Suggested is default).
- * Edit with a suggested-origin tile does the same; other edits load it only
- * after the user clicks Suggested. Never refetch while typing. SVGL rate-limits at 5 req / 10s then a 3-minute lockout; in-flight
- * coalescing plus the TTL stay under that. Preview <img> may use svgl.app
- * (display-only). Save never fetch()es svgl.app — it has no
- * Access-Control-Allow-Origin, and Chrome logs CORS even if we catch it.
- * Download and rasterize go through api.svgl.app (CORS *).
- *
- * Why PNG data URLs, not SVG on disk
- * The extension package is read-only at runtime — we cannot write
- * chrome-extension://id/reddit.svg. Persistence is chrome.storage (a
- * key/value DB). A data: URL embeds the file in the stored string so New Tab
- * does not call SVGL again. data:image/svg+xml is blocked as an <img> src on
- * Chrome extension pages (SVG can carry script). data:image/png is allowed.
- * Suggested Save rasterizes the SVG to a 256px PNG and stores it as
- * DialIcon upload with via: 'suggested' so Edit reopens that tab. Alternatives we did not
- * take: hotlink svgl.app every New Tab; bundle 665 SVGs at build time;
- * store SVG text and mint a blob: URL each load (would keep vectors).
- */
+// SVGL brand marks for speed-dial tiles.
+//
+// Catalog vs files
+// SVGL's API is a JSON phone book (~665 brands: title, site url, SVG hrefs),
+// not a folder of images. We cache that index 5 minutes in RAM +
+// chrome.storage.local (opendial.svglCatalog). It is not part of backup JSON.
+// Matching is local: hostname, then longest path prefix (github.com vs
+// github.com/features/copilot). Product hosts also search the parent domain
+// (drive.google.com uses google.com/drive). Homepage `/` on the parent is
+// ignored so Drive does not fall through to the Google mark. Do not use
+// ?search= — that is title search and ranks Copilot first for "github".
+//
+// When we hit the network
+// Add site loads the catalog when the modal opens (Suggested is default).
+// Edit with a suggested-origin tile does the same; other edits load it only
+// after the user clicks Suggested. Never refetch while typing. SVGL rate-limits at 5 req / 10s then a 3-minute lockout; in-flight
+// coalescing plus the TTL stay under that. Preview <img> may use svgl.app
+// (display-only). Save never fetch()es svgl.app — it has no
+// Access-Control-Allow-Origin, and Chrome logs CORS even if we catch it.
+// Download and rasterize go through api.svgl.app (CORS *).
+//
+// Why PNG data URLs, not SVG on disk
+// The extension package is read-only at runtime — we cannot write
+// chrome-extension://id/reddit.svg. Persistence is chrome.storage (a
+// key/value DB). A data: URL embeds the file in the stored string so New Tab
+// does not call SVGL again. data:image/svg+xml is blocked as an <img> src on
+// Chrome extension pages (SVG can carry script). data:image/png is allowed.
+// Suggested Save rasterizes the SVG to a 256px PNG and stores it as
+// DialIcon upload with via: 'suggested' so Edit reopens that tab. Alternatives we did not
+// take: hotlink svgl.app every New Tab; bundle 665 SVGs at build time;
+// store SVG text and mint a blob: URL each load (would keep vectors).
 import type { ThemeName } from '@/src/types';
 import { createCatalogLoader } from '@/src/lib/catalogCache';
 import { hostnameOf, normalizeUrl } from '@/src/lib/format';
@@ -69,6 +67,7 @@ export const loadSvglCatalog = createCatalogLoader<SvglCatalog>({
 });
 
 export function matchSvgl(pageUrl: string, catalog: SvglCatalog | null): SvglRow | null {
+  // Longest matching path prefix wins; exact host beats a parent-domain match at the same length.
   if (!catalog) return null;
   let parsed: URL;
   try {
@@ -87,7 +86,7 @@ export function matchSvgl(pageUrl: string, catalog: SvglCatalog | null): SvglRow
   for (const attempt of attempts) {
     const rows = catalog.byHost[attempt.host] ?? [];
     for (const row of rows) {
-      if (attempt.host !== host && row.path === '/') continue;
+      if (attempt.host !== host && row.path === '/') continue; // don't let google.com/ steal Drive
       if (!pathPrefixOk(row.path, attempt.path)) continue;
       const len = pathScore(row.path);
       const exact = attempt.host === host;
@@ -101,7 +100,7 @@ export function matchSvgl(pageUrl: string, catalog: SvglCatalog | null): SvglRow
   return best;
 }
 
-/** drive.google.com/… also looks at google.com rows (SVGL lists Drive as google.com/drive). */
+// drive.google.com/… also looks at google.com rows (SVGL lists Drive as google.com/drive).
 function hostPathAttempts(host: string, dialPath: string): Array<{ host: string; path: string }> {
   const attempts: Array<{ host: string; path: string }> = [{ host, path: dialPath }];
   const labels = host.split('.');
@@ -121,16 +120,14 @@ export function svglIconHref(row: SvglRow, theme: ThemeName): string {
   return theme === 'light' ? row.light : row.dark;
 }
 
-/**
- * Persist a suggested mark as a PNG data URL.
- *
- * `href` is the catalog preview URL (https://svgl.app/library/reddit.svg).
- * Do not fetch or draw that host: it has no Access-Control-Allow-Origin, so
- * Chrome blocks fetch() from chrome-extension:// and still logs CORS when
- * the rejection is caught. Map the filename onto api.svgl.app (CORS *) and
- * rasterize from there. Prefer loading the API URL as an <img> (one GET);
- * if that fails, fetch SVG text from the same API URL and rasterize locally.
- */
+// Persist a suggested mark as a PNG data URL.
+//
+// `href` is the catalog preview URL (https://svgl.app/library/reddit.svg).
+// Do not fetch or draw that host: it has no Access-Control-Allow-Origin, so
+// Chrome blocks fetch() from chrome-extension:// and still logs CORS when
+// the rejection is caught. Map the filename onto api.svgl.app (CORS *) and
+// rasterize from there. Prefer loading the API URL as an <img> (one GET);
+// if that fails, fetch SVG text from the same API URL and rasterize locally.
 export async function fetchSvgAsDataUrl(href: string): Promise<string> {
   const apiUrl = apiSvgUrl(href);
   if (!apiUrl) {
@@ -151,11 +148,9 @@ export async function fetchSvgAsDataUrl(href: string): Promise<string> {
   }
 }
 
-/**
- * Catalog `route` is https://svgl.app/library/{file}.svg (preview <img> only).
- * The download endpoint is GET https://api.svgl.app/svg/{file}.svg
- * (Access-Control-Allow-Origin: *). Filename is the last path segment.
- */
+// Catalog `route` is https://svgl.app/library/{file}.svg (preview <img> only).
+// The download endpoint is GET https://api.svgl.app/svg/{file}.svg
+// (Access-Control-Allow-Origin: *). Filename is the last path segment.
 function apiSvgUrl(href: string): string | null {
   const file = fileNameOf(href);
   return file ? `https://api.svgl.app/svg/${file}` : null;
@@ -170,7 +165,7 @@ function fileNameOf(href: string): string {
   }
 }
 
-/** fetch() only api.svgl.app. Never pass svgl.app — CORS is not present there. */
+// fetch() only api.svgl.app. Never pass svgl.app — CORS is not present there.
 async function fetchSvgText(url: string): Promise<string> {
   const response = await fetch(url, { credentials: 'omit' });
   if (!response.ok) {

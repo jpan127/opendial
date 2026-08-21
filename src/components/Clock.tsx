@@ -1,3 +1,9 @@
+// Local clock in the top-left widget card.
+//
+// Shows hours:minutes:seconds, AM/PM if the locale uses it, short timezone
+// name, and the weekday/date. Ticks on the next whole second so the display
+// does not drift. Formatting uses the browser locale. Hidden when Clock is
+// off in Settings (`LocalWidgets` then omits it).
 import { useEffect, useState } from 'react';
 
 export function Clock() {

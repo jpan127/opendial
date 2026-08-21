@@ -1,3 +1,4 @@
+// Speed-dial list helpers. `order` is the persisted sort key (0…n-1 after a drag).
 import type { Dial } from '@/src/types';
 
 export function sortedDials(dials: Dial[]): Dial[] {
@@ -8,6 +9,7 @@ export function nextOrder(dials: Dial[]): number {
   return dials.reduce((max, dial) => Math.max(max, dial.order), -1) + 1;
 }
 
+// Move `fromId` to `toId`’s index and reindex `order`.
 export function reorderDials(dials: Dial[], fromId: string, toId: string): Dial[] {
   const ordered = sortedDials(dials);
   const fromIndex = ordered.findIndex((dial) => dial.id === fromId);
@@ -20,6 +22,7 @@ export function reorderDials(dials: Dial[], fromId: string, toId: string): Dial[
   return ordered.map((dial, index) => ({ ...dial, order: index }));
 }
 
+// Dropping on the Add tile appends the dragged dial.
 export function moveDialToEnd(dials: Dial[], fromId: string): Dial[] {
   const ordered = sortedDials(dials);
   const fromIndex = ordered.findIndex((dial) => dial.id === fromId);

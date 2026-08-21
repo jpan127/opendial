@@ -1,3 +1,5 @@
+// Real new-tab UI. Apply theme on the document before React so the first
+// frame matches storage (default dark). ThemeToggle keeps `data-theme` in sync.
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';

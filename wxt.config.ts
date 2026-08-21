@@ -1,3 +1,5 @@
+// WXT extension config. `entrypoints/` is scanned automatically:
+// newtab stub, home UI, ChatGPT/Gemini content scripts.
 import { defineConfig } from 'wxt';
 
 export default defineConfig({
@@ -10,7 +12,7 @@ export default defineConfig({
     version: '0.1.0',
     permissions: [
       'storage',
-      'unlimitedStorage',
+      'unlimitedStorage', // uploaded PNG data URLs
       'history',
       'topSites',
       'sessions',
@@ -26,8 +28,8 @@ export default defineConfig({
       'https://gemini.google.com/*',
       'https://chatgpt.com/*',
       'https://chat.openai.com/*',
-      'https://api.svgl.app/*',
-      'https://svgl.app/*',
+      'https://api.svgl.app/*', // catalog + SVG download (CORS *)
+      'https://svgl.app/*', // preview <img> only
       'https://cdn.jsdelivr.net/*',
       'https://cdn.simpleicons.org/*',
     ],

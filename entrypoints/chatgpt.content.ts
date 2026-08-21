@@ -1,3 +1,5 @@
+// Runs on chatgpt.com after OpenDial navigates there with a stashed prompt.
+// Selectors are best-effort; the composer markup changes often.
 import { fillComposer, isVisible, waitForEditor } from '@/src/lib/fillComposer';
 import {
   CHATGPT_QUERY_KEY,

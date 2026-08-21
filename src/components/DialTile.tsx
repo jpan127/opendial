@@ -1,3 +1,16 @@
+// One speed-dial bookmark as a labeled icon.
+//
+// Shows the stored icon (favicon, uploaded PNG, or image URL). Legacy SVG
+// data URLs are rasterized to PNG first because Chrome blocks SVG `<img>`
+// on extension pages. A broken image falls back to a monogram letter.
+//
+// Left-click navigates (the parent can intercept Ctrl/Cmd-click). Right-click
+// edits. Drag: after an 8px move, pointer listeners on `window` drive the
+// grid’s ghost; the following click is ignored so a reorder does not also
+// open the site. Native HTML5 drag is turned off on the `<a>`.
+//
+// `DialTileGhost` is the same face, used while dragging so the original
+// tile can dim in place.
 import type { MouseEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type { Dial, DialIcon } from '@/src/types';
@@ -6,6 +19,7 @@ import { isSvgDataUrl, rasterizeSvgDataUrl } from '@/src/lib/iconRaster';
 
 const DRAG_THRESHOLD_PX = 8;
 
+// Pointer origin when a tile drag starts — used to position the ghost.
 export type DialDragOrigin = {
   x: number;
   y: number;
@@ -40,7 +54,7 @@ export function DialTile({
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const rawSrc = iconSrc(dial.icon, dial.url);
   const [src, setSrc] = useState<string | null>(
-    rawSrc && isSvgDataUrl(rawSrc) ? null : rawSrc,
+    rawSrc && isSvgDataUrl(rawSrc) ? null : rawSrc, // hide SVG until rasterized
   );
 
   useEffect(() => {
@@ -93,7 +107,7 @@ export function DialTile({
       href={dial.url}
       data-dial-id={dial.id}
       draggable={false}
-      onDragStart={(event) => event.preventDefault()}
+      onDragStart={(event) => event.preventDefault()} // stop the browser from dragging the <a>
       onPointerDown={(event) => {
         if (event.button !== 0) return;
         stopWindowDrag.current?.();
@@ -160,6 +174,7 @@ export function DialTile({
   );
 }
 
+// Floating copy of a tile that follows the cursor during reorder.
 export function DialTileGhost({
   dial,
   src,

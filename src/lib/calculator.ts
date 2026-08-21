@@ -1,3 +1,5 @@
+// Local expression evaluator — no `eval()`.
+// Precedence: unary ± → postfix % → implicit multiply (`2(3+4)`) → ^ (right-assoc) → * / → + −.
 export type EvalOk = { ok: true; value: number; formatted: string };
 export type EvalErr = { ok: false; error: string };
 export type EvalResult = EvalOk | EvalErr;
@@ -22,6 +24,7 @@ class ParseError extends Error {
   }
 }
 
+// Trim IEEE noise, then group thousands for display.
 export function formatNumber(value: number): string {
   if (!Number.isFinite(value)) return 'Error';
   const rounded = Number(value.toPrecision(12));
@@ -97,7 +100,7 @@ function tokenize(source: string): Tok[] {
           continue;
         }
         if (next === ',' && sawDigit) {
-          i += 1;
+          i += 1; // thousands separators in typed numbers
           continue;
         }
         if (next === '.' && !sawDot) {
@@ -160,6 +163,7 @@ function parseExpr(tokens: Tok[]): Expr {
   const parseImplicit = (): Expr => {
     let node = parsePostfix();
     while (true) {
+      // `2(3)` and `2 3` mean multiply; stop on operators.
       const next = peek();
       if (!next || (next.kind !== 'num' && next.kind !== 'lparen')) break;
       node = { kind: 'bin', op: '*', left: node, right: parsePostfix() };

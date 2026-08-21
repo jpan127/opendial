@@ -1,3 +1,5 @@
+// chrome.storage.local access and React hooks that stay in sync across tabs.
+// Logo catalogs live here but are omitted from backup JSON (they are caches).
 import { browser } from 'wxt/browser';
 import { useEffect, useState } from 'react';
 import type {
@@ -28,11 +30,11 @@ export const STORAGE_KEYS = {
   showTop10: 'opendial.showTop10',
   showRecentlyClosed: 'opendial.showRecentlyClosed',
   railCollapsed: 'opendial.railCollapsed',
-  showCalculator: 'opendial.showCalculator',
-  showCalculatorWidget: 'opendial.showCalculatorWidget',
+  showCalculator: 'opendial.showCalculator', // panel open
+  showCalculatorWidget: 'opendial.showCalculatorWidget', // toolbar button
   calcHistory: 'opendial.calcHistory',
-  svglCatalog: 'opendial.svglCatalog',
-  simpleIconsCatalog: 'opendial.simpleIconsCatalog',
+  svglCatalog: 'opendial.svglCatalog', // not in backup
+  simpleIconsCatalog: 'opendial.simpleIconsCatalog', // not in backup
 } as const;
 
 export const DEFAULT_GREETING: Greeting = {
@@ -42,6 +44,7 @@ export const DEFAULT_GREETING: Greeting = {
 
 const EMPTY_DIALS: Dial[] = [];
 
+// Read one key; missing keys return `fallback`.
 export async function getLocal<T>(key: string, fallback: T): Promise<T> {
   const result = await browser.storage.local.get(key);
   return (result[key] as T | undefined) ?? fallback;
@@ -51,6 +54,8 @@ export async function setLocal<T>(key: string, value: T): Promise<void> {
   await browser.storage.local.set({ [key]: value });
 }
 
+// Storage-backed state. Third tuple value `ready` is false until the first read.
+// Updates write through immediately so other new-tab pages see them.
 export function useLocalState<T>(key: string, fallback: T) {
   const [value, setValue] = useState<T>(fallback);
   const [ready, setReady] = useState(false);
@@ -109,6 +114,7 @@ export function useDials() {
 }
 
 export function useTempUnit() {
+  // First-run default only; a stored value always wins.
   const localeDefault: TempUnit = navigator.language.toLowerCase().includes('us')
     ? 'f'
     : 'c';
@@ -157,12 +163,12 @@ export function useRailCollapsed() {
   return useLocalState<RailCollapsed>(STORAGE_KEYS.railCollapsed, DEFAULT_RAIL);
 }
 
-/** Whether the calculator panel is open. Kept so new tabs restore it. */
+// Whether the calculator panel is open. Kept so new tabs restore it.
 export function useCalcOpen() {
   return useLocalState<boolean>(STORAGE_KEYS.showCalculator, false);
 }
 
-/** Whether the calculator button is shown. Defaults on; independent of open state. */
+// Whether the calculator button is shown. Defaults on; independent of open state.
 export function useShowCalculator() {
   return useLocalState<boolean>(STORAGE_KEYS.showCalculatorWidget, true);
 }

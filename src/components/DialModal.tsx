@@ -1,3 +1,16 @@
+// Add or edit a speed-dial site.
+//
+// Collects name, URL, and icon. Icon sources:
+// - Suggested — match SVGL, then Simple Icons, then favicon. Never stored as
+//   its own kind; Save downloads one SVG, rasterizes to PNG, and writes
+//   `{ kind: 'upload', via: 'suggested' }` (or favicon if nothing matched).
+// - Favicon — Chrome’s tab icon for the URL.
+// - Upload — dropped or browsed image, stored as a data URL.
+// - URL — hotlinked image.
+//
+// The live preview on the left tracks the form. Catalogs load only while
+// Suggested is selected; URL matching is debounced. Backdrop click, Escape,
+// and Cancel close without saving. Delete is shown only when editing.
 import { useEffect, useRef, useState } from 'react';
 import type { Dial, DialIcon } from '@/src/types';
 import { faviconUrl, hostnameOf, monogram, normalizeUrl } from '@/src/lib/format';
@@ -18,7 +31,7 @@ import {
   type SvglCatalog,
 } from '@/src/lib/svgl';
 
-/** Suggested is a modal-only source. It is never persisted; Save becomes upload or favicon. */
+// Suggested is a modal-only source. It is never persisted; Save becomes upload or favicon.
 type IconSource = DialIcon['kind'] | 'suggested';
 
 type Props = {
@@ -64,6 +77,7 @@ export function DialModal({ initial, onSave, onDelete, onClose }: Props) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  // Debounce matching so we do not re-run catalogs on every keystroke.
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedUrl(url), 200);
     return () => window.clearTimeout(timer);

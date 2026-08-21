@@ -1,3 +1,4 @@
+// Same prompt-fill flow as ChatGPT, for gemini.google.com.
 import { fillComposer, isVisible, waitForEditor } from '@/src/lib/fillComposer';
 import {
   GEMINI_QUERY_KEY,

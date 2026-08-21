@@ -1,3 +1,13 @@
+// OpenDial new-tab page.
+//
+// This is the layout root: left rail (Top 10 / recently closed), top-left
+// clock/weather card, top-right calculator/settings/theme, then greeting,
+// search, and the speed-dial grid.
+//
+// It owns the chrome.storage-backed settings that several children share
+// (theme, greeting, search engine, dials, tile/greeting size, widget flags)
+// and writes `--od-dial-size` / `--od-greeting-size` so CSS can size those
+// without every child reading storage.
 import { Calculator } from '@/src/components/Calculator';
 import { DialGrid } from '@/src/components/DialGrid';
 import { Greeting } from '@/src/components/Greeting';
@@ -32,6 +42,7 @@ export default function App() {
   const [showWeather] = useShowWeather();
   const [forecastDays] = useForecastDays();
 
+  // Settings sliders write CSS variables used by the dial grid and greeting.
   useEffect(() => {
     document.documentElement.style.setProperty('--od-dial-size', `${dialSize}px`);
   }, [dialSize]);

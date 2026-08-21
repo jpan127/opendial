@@ -1,3 +1,9 @@
+// Editable “hello {name}” heading at the center of the page.
+//
+// This is the personal welcome, not a search or nav control. Click to edit
+// both words; Enter or click-outside saves to storage. Escape cancels.
+// An empty hello falls back to “hello”. An empty name shows a faint
+// “add name” hint. Font size comes from the Greeting size slider (`--od-greeting-size`).
 import { useEffect, useRef, useState } from 'react';
 import type { Greeting } from '@/src/types';
 

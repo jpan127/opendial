@@ -1,3 +1,13 @@
+// Expression calculator in the top-right toolbar.
+//
+// For quick local math on the new tab (no eval, no network). The keypad
+// button opens a panel: type an expression, Enter commits, history lists
+// past results (click to edit). Alt+C toggles when the button is shown.
+//
+// Open/closed is stored so a new tab restores the panel. The gear menu’s
+// Calculator switch hides the button entirely (`showCalculatorWidget`);
+// that is independent of whether the panel was open. History is local and
+// not included in backup JSON.
 import { useEffect, useRef, useState } from 'react';
 import { evaluateExpression, groupDigits, groupExpression } from '@/src/lib/calculator';
 import { useCalcHistory, useCalcOpen, useShowCalculator } from '@/src/lib/storage';

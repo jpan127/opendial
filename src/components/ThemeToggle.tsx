@@ -1,3 +1,9 @@
+// Dark / light theme toggle (sun in dark mode, moon in light).
+//
+// Writes `document.documentElement.dataset.theme` so `tokens.css` switches
+// `--od-*` colors. The stored theme is owned by `App`; this only paints
+// the control and applies `data-theme` when it changes. Default is dark
+// (also set in `home/main.tsx` before React mounts to avoid a flash).
 import { useEffect } from 'react';
 import type { ThemeName } from '@/src/types';
 

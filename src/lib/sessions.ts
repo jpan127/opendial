@@ -1,3 +1,5 @@
+// Recently closed tabs/windows via chrome.sessions.
+// NTP and extension pages are omitted so the list is useful sites only.
 import { browser } from 'wxt/browser';
 
 export type ClosedEntry = {
@@ -60,6 +62,7 @@ export async function getRecentlyClosed(limit = 25): Promise<ClosedEntry[]> {
   return entries.slice(0, limit);
 }
 
+// chrome.sessions.restore — works for both tab and window session ids.
 export async function restoreClosed(sessionId: string): Promise<void> {
   await browser.sessions.restore(sessionId);
 }

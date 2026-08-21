@@ -1,9 +1,12 @@
+// Open-Meteo forecast + US AQI, with a 20-minute cache in storage.
+// City override (weatherCity) wins over GPS. Empty city clears the cache and uses location again.
 import { browser } from 'wxt/browser';
 import type { DailyForecast, WeatherCache } from '@/src/types';
 import { STORAGE_KEYS, getLocal, setLocal } from '@/src/lib/storage';
 
 const CACHE_MS = 20 * 60 * 1000;
 
+// WMO weather codes → short labels (not exhaustive; unknown codes say “Weather”).
 const WEATHER_LABELS: Record<number, string> = {
   0: 'Clear',
   1: 'Mostly clear',
@@ -39,6 +42,7 @@ export function formatTemp(celsius: number, unit: 'c' | 'f'): string {
   return `${Math.round(celsius)}°`;
 }
 
+// US AQI buckets; `tone` maps to `.aqi-*` in CSS (colors stay hardcoded there).
 export function aqiMeta(aqi: number): { label: string; tone: string } {
   if (aqi <= 50) return { label: 'Good', tone: 'good' };
   if (aqi <= 100) return { label: 'Moderate', tone: 'moderate' };
@@ -169,6 +173,7 @@ function getPosition(): Promise<GeolocationPosition> {
 }
 
 function cacheComplete(cache: WeatherCache | null): boolean {
+  // Older caches lacked daily[]; refetch so the forecast slider has data.
   return (
     cache != null &&
     typeof cache.highC === 'number' &&
@@ -179,6 +184,7 @@ function cacheComplete(cache: WeatherCache | null): boolean {
 
 export async function loadWeather(force = false): Promise<WeatherCache> {
   const cached = await getLocal<WeatherCache | null>(STORAGE_KEYS.weather, null);
+  // Reverse-geocode sometimes fails; retry until we have a real city name.
   const needsPlace = cached?.cityLabel === 'Local' || !cached?.cityLabel;
   if (!force && cacheComplete(cached) && Date.now() - cached!.fetchedAt < CACHE_MS && !needsPlace) {
     return cached!;
@@ -196,7 +202,7 @@ export async function loadWeather(force = false): Promise<WeatherCache> {
     try {
       label = await reverseGeocode(position.coords.latitude, position.coords.longitude);
     } catch {
-      /* keep Local */
+      // keep Local
     }
     return fetchForecast(position.coords.latitude, position.coords.longitude, label);
   } catch {

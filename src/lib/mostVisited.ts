@@ -1,3 +1,6 @@
+// Top 10 domains from the last 90 days of history.
+// Search pages and hosts already on the dial grid are skipped.
+// Chrome topSites fills in when history is thin.
 import { browser } from 'wxt/browser';
 import { hostnameOf } from '@/src/lib/format';
 
@@ -19,9 +22,9 @@ function shouldSkipUrl(url: string): boolean {
     if (!['http:', 'https:'].includes(parsed.protocol)) return true;
     const host = parsed.hostname.replace(/^www\./, '');
     if (SKIP_HOSTS.has(host)) return true;
-    if (parsed.pathname.startsWith('/search')) return true;
+    if (parsed.pathname.startsWith('/search')) return true; // google/bing results, not the product
     if (host === 'google.com' && parsed.pathname === '/') return true;
-    if (host === 'chatgpt.com' && parsed.searchParams.has('q')) return true;
+    if (host === 'chatgpt.com' && parsed.searchParams.has('q')) return true; // our own search hops
     if (host === 'gemini.google.com') return true;
     return false;
   } catch {
@@ -64,6 +67,7 @@ export async function getMostVisited(
     .sort((a, b) => (b.visits ?? 0) - (a.visits ?? 0))
     .slice(0, limit);
 
+  // History can be empty in a fresh profile; topSites is Chrome’s own shortcut list.
   if (results.length < 5) {
     const topSites = await browser.topSites.get();
     const seen = new Set(results.map((item) => item.host));

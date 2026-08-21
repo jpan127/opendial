@@ -1,3 +1,4 @@
+// User-facing JSON backup. Does not include weather cache, logo catalogs, or calc history.
 import type { BackupPayload, Dial, Greeting, SearchEngine, TempUnit, ThemeName } from '@/src/types';
 import {
   DEFAULT_DIAL_SIZE,
@@ -61,6 +62,7 @@ export async function exportBackup(): Promise<BackupPayload> {
   };
 }
 
+// Replaces settings in place. Invalid `version` is rejected rather than partially applied.
 export async function importBackup(payload: BackupPayload): Promise<void> {
   if (payload.version !== 1) {
     throw new Error('Unsupported backup version');
@@ -84,6 +86,7 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
   ]);
 }
 
+// Trigger a file download of the backup JSON (no chrome.downloads).
 export function downloadBackup(payload: BackupPayload): void {
   const blob = new Blob([JSON.stringify(payload, null, 2)], {
     type: 'application/json',

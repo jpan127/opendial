@@ -1,3 +1,5 @@
+// SVG → PNG data URLs. Chrome extension pages block `data:image/svg+xml` as <img> src.
+// blob: URLs are allowed for drawing; we persist PNG so New Tab never re-fetches SVGL.
 export const ICON_RASTER_SIZE = 256;
 
 export function isSvgDataUrl(value: string): boolean {
@@ -8,7 +10,7 @@ export async function rasterizeSvgDataUrl(dataUrl: string): Promise<string> {
   return rasterizeSvgToPng(svgTextFromDataUrl(dataUrl));
 }
 
-/** Draw SVG markup via a blob: URL. NTP blocks data:image/svg+xml as <img> src. */
+// Draw SVG markup via a blob: URL. NTP blocks data:image/svg+xml as <img> src.
 export async function rasterizeSvgToPng(
   svgText: string,
   size = ICON_RASTER_SIZE,
@@ -25,10 +27,8 @@ export async function rasterizeSvgToPng(
   }
 }
 
-/**
- * Draw an HTTPS SVG into a canvas. `crossOrigin = anonymous` is required so
- * the canvas is not tainted and toDataURL('image/png') is allowed.
- */
+// Draw an HTTPS SVG into a canvas. `crossOrigin = anonymous` is required so
+// the canvas is not tainted and toDataURL('image/png') is allowed.
 export async function rasterizeRemoteToPng(
   url: string,
   size = ICON_RASTER_SIZE,
@@ -49,6 +49,7 @@ function drawPng(image: HTMLImageElement, size: number): string {
 
 function prepareSvg(svgText: string, size: number): string {
   let svg = svgText.trim();
+  // Canvas drawImage needs xmlns; some catalog files omit it.
   if (!/\sxmlns=/.test(svg)) {
     svg = svg.replace(/<svg\b/i, '<svg xmlns="http://www.w3.org/2000/svg"');
   }

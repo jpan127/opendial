@@ -1,5 +1,18 @@
+// Suggested-icon picker inside `DialModal`.
+//
+// Three rows: SVGL brand mark, Simple Icons slug match, then the site
+// favicon. The user picks one row; that choice is not persisted until the
+// modal Saves (then it becomes an upload or favicon).
+//
+// Each row shows a preview thumb, match status, and a link to the catalog
+// (or the site itself for favicon). Unmatched SVGL/Simple rows are disabled.
+// Until catalogs load, or until the address field has text, this shows a
+// short status instead of the list.
+//
+// `PickSource` is which of those three rows is selected.
 import { hostnameOf } from '@/src/lib/format';
 
+// Which suggested row is selected: SVGL, Simple Icons, or favicon.
 export type PickSource = 'svgl' | 'simpleicons' | 'favicon';
 
 const SVGL_SITE = 'https://svgl.app';
@@ -15,6 +28,7 @@ function simpleIconsPage(slug: string | null): string {
   return `${SIMPLE_ICONS_SITE}/?q=${encodeURIComponent(slug)}`;
 }
 
+// Three-row suggested list, or a short “looking up / no address” status.
 export function SuggestedPanel({
   ready,
   hasAddress,

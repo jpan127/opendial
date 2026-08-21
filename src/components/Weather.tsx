@@ -1,3 +1,12 @@
+// Weather pane in the top-left widget card.
+//
+// Current temperature, condition, city, high/low, rain chance, UV, and US
+// AQI from Open-Meteo (plus reverse-geocode for a place name). Optional
+// forecast chips for the next 1–6 days (slider in Settings). °C/°F is
+// stored. Click the summary to type a city; an empty city goes back to GPS.
+//
+// Data is cached ~20 minutes. If location is denied and no city is set,
+// the pane invites the user to set a city. Hidden when Weather is off.
 import { useEffect, useState } from 'react';
 import { WeatherGlyph } from '@/src/components/WeatherGlyph';
 import type { TempUnit, WeatherCache } from '@/src/types';
@@ -124,7 +133,7 @@ export function Weather({ unit, onUnitChange, forecastDays }: Props) {
       {upcoming.length > 0 ? (
         <div className="forecast-row">
           {upcoming.map((day) => {
-            const date = new Date(`${day.date}T12:00:00`);
+            const date = new Date(`${day.date}T12:00:00`); // noon avoids TZ shifting the weekday
             const name = new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(date);
             return (
               <div key={day.date} className="forecast-day" title={weatherLabel(day.weatherCode)}>

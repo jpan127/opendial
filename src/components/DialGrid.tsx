@@ -1,3 +1,15 @@
+// Speed-dial grid — the bookmarks on the new tab.
+//
+// Renders one `DialTile` per saved site plus a dashed Add tile. Click a tile
+// to open it (Ctrl/Cmd-click → new tab). Right-click opens `DialModal` to
+// edit or delete. The Add tile opens the same modal empty.
+//
+// Reorder is pointer-based (not HTML5 drag): a floating `DialTileGhost`
+// follows the cursor while tiles in the grid shuffle. Dropping on Add
+// appends. Order is written to storage only when it actually changed, so a
+// click-without-move does not churn `dials`.
+//
+// HTML5 drag on `<a href>` is disabled; Chrome’s new-tab page fights it.
 import { useLayoutEffect, useRef, useState } from 'react';
 import type { Dial, DialIcon } from '@/src/types';
 import {
@@ -174,7 +186,7 @@ function dropTargetAt(
   draggingId: string,
 ): string | 'end' | null {
   const slots = grid.querySelectorAll<HTMLElement>('[data-dial-id], .add-tile');
-  const inflate = 11;
+  const inflate = 11; // a bit of slack between cells so reorder doesn't stall
   let bestId: string | 'end' | null = null;
   let bestDist = Infinity;
 

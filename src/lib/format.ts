@@ -1,5 +1,7 @@
+// URL, favicon, and display helpers shared by dials and the sidebar.
 import { browser } from 'wxt/browser';
 
+// Chrome’s extension favicon service (`favicon` permission).
 export function faviconUrl(pageUrl: string, size = 64): string {
   const url = new URL(`chrome-extension://${browser.runtime.id}/_favicon/`);
   url.searchParams.set('pageUrl', pageUrl);
@@ -7,6 +9,7 @@ export function faviconUrl(pageUrl: string, size = 64): string {
   return url.toString();
 }
 
+// Hostname without a leading `www.`; null if `url` is not absolute.
 export function hostnameOf(url: string): string | null {
   try {
     return new URL(url).hostname.replace(/^www\./, '');
@@ -15,6 +18,7 @@ export function hostnameOf(url: string): string | null {
   }
 }
 
+// Accepts `github.com` or a full URL; prepends https when the scheme is missing.
 export function normalizeUrl(input: string): string {
   const trimmed = input.trim();
   if (!trimmed) {
@@ -35,6 +39,7 @@ export function formatCount(n: number): string {
   return `${Math.round(n / 1000)}k`;
 }
 
+// Compact age for recently closed rows. Chrome sessions use seconds, not ms.
 export function relativeTime(epochSeconds: number): string {
   const deltaMs = Date.now() - epochSeconds * 1000;
   const minutes = Math.max(0, Math.round(deltaMs / 60_000));
