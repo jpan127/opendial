@@ -80,6 +80,38 @@ export type BackupPayload = {
   showCalculator?: boolean;
   // Gear-menu toggle for the calculator button. Missing ⇒ shown.
   showCalculatorWidget?: boolean;
+  showReddit?: boolean;
+  redditSubs?: string[];
+  redditLimit?: number;
+  redditSort?: RedditSort;
+  redditWidth?: number;
+  redditListHeight?: number;
+};
+
+export type RedditSort = 'hot' | 'day' | 'week';
+
+export type RedditPost = {
+  id: string;
+  sub: string;
+  title: string;
+  url: string;
+  author: string;
+  updatedAt: number;
+  score?: number;
+};
+
+export type RedditCache = {
+  version: 1;
+  fetchedAt: number;
+  sort: RedditSort;
+  subsKey: string;
+  posts: RedditPost[];
+};
+
+// chrome.storage blob for all Hot/Today/Week snapshots. Not in backup JSON.
+export type RedditCacheBank = {
+  version: 2;
+  slots: Record<string, RedditCache>;
 };
 
 export const DEFAULT_DIAL_SIZE = 148;
@@ -93,6 +125,19 @@ export const MAX_GREETING_SIZE = 120;
 export const DEFAULT_FORECAST_DAYS = 0;
 export const MIN_FORECAST_DAYS = 0;
 export const MAX_FORECAST_DAYS = 6;
+
+export const DEFAULT_REDDIT_LIMIT = 12;
+export const MIN_REDDIT_LIMIT = 5;
+export const MAX_REDDIT_LIMIT = 100;
+export const MAX_REDDIT_SUBS = 20;
+
+export const DEFAULT_REDDIT_WIDTH = 380;
+export const MIN_REDDIT_WIDTH = 280;
+export const MAX_REDDIT_WIDTH = 560;
+
+export const DEFAULT_REDDIT_LIST_HEIGHT = 360;
+export const MIN_REDDIT_LIST_HEIGHT = 200;
+export const MAX_REDDIT_LIST_HEIGHT = 800;
 
 // Sidebar section headers; `true` means collapsed.
 export type RailCollapsed = {

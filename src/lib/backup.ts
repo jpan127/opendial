@@ -1,9 +1,21 @@
-// User-facing JSON backup. Does not include weather cache, logo catalogs, or calc history.
-import type { BackupPayload, Dial, Greeting, SearchEngine, TempUnit, ThemeName } from '@/src/types';
+// User-facing JSON backup. Does not include weather cache, logo catalogs,
+// Reddit post cache, or calc history.
+import type {
+  BackupPayload,
+  Dial,
+  Greeting,
+  RedditSort,
+  SearchEngine,
+  TempUnit,
+  ThemeName,
+} from '@/src/types';
 import {
   DEFAULT_DIAL_SIZE,
   DEFAULT_FORECAST_DAYS,
   DEFAULT_GREETING_SIZE,
+  DEFAULT_REDDIT_LIMIT,
+  DEFAULT_REDDIT_LIST_HEIGHT,
+  DEFAULT_REDDIT_WIDTH,
 } from '@/src/types';
 import { DEFAULT_GREETING, STORAGE_KEYS, getLocal, setLocal } from '@/src/lib/storage';
 
@@ -24,6 +36,12 @@ export async function exportBackup(): Promise<BackupPayload> {
     showRecentlyClosed,
     showCalculator,
     showCalculatorWidget,
+    showReddit,
+    redditSubs,
+    redditLimit,
+    redditSort,
+    redditWidth,
+    redditListHeight,
   ] = await Promise.all([
     getLocal<ThemeName>(STORAGE_KEYS.theme, 'dark'),
     getLocal<Greeting>(STORAGE_KEYS.greeting, DEFAULT_GREETING),
@@ -40,6 +58,12 @@ export async function exportBackup(): Promise<BackupPayload> {
     getLocal<boolean>(STORAGE_KEYS.showRecentlyClosed, true),
     getLocal<boolean>(STORAGE_KEYS.showCalculator, false),
     getLocal<boolean>(STORAGE_KEYS.showCalculatorWidget, true),
+    getLocal<boolean>(STORAGE_KEYS.showReddit, false),
+    getLocal<string[]>(STORAGE_KEYS.redditSubs, []),
+    getLocal<number>(STORAGE_KEYS.redditLimit, DEFAULT_REDDIT_LIMIT),
+    getLocal<RedditSort>(STORAGE_KEYS.redditSort, 'hot'),
+    getLocal<number>(STORAGE_KEYS.redditWidth, DEFAULT_REDDIT_WIDTH),
+    getLocal<number>(STORAGE_KEYS.redditListHeight, DEFAULT_REDDIT_LIST_HEIGHT),
   ]);
 
   return {
@@ -59,6 +83,12 @@ export async function exportBackup(): Promise<BackupPayload> {
     showRecentlyClosed,
     showCalculator,
     showCalculatorWidget,
+    showReddit,
+    redditSubs,
+    redditLimit,
+    redditSort,
+    redditWidth,
+    redditListHeight,
   };
 }
 
@@ -83,6 +113,12 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
     setLocal(STORAGE_KEYS.showRecentlyClosed, payload.showRecentlyClosed ?? true),
     setLocal(STORAGE_KEYS.showCalculator, payload.showCalculator ?? false),
     setLocal(STORAGE_KEYS.showCalculatorWidget, payload.showCalculatorWidget ?? true),
+    setLocal(STORAGE_KEYS.showReddit, payload.showReddit ?? false),
+    setLocal(STORAGE_KEYS.redditSubs, payload.redditSubs ?? []),
+    setLocal(STORAGE_KEYS.redditLimit, payload.redditLimit ?? DEFAULT_REDDIT_LIMIT),
+    setLocal(STORAGE_KEYS.redditSort, payload.redditSort ?? 'hot'),
+    setLocal(STORAGE_KEYS.redditWidth, payload.redditWidth ?? DEFAULT_REDDIT_WIDTH),
+    setLocal(STORAGE_KEYS.redditListHeight, payload.redditListHeight ?? DEFAULT_REDDIT_LIST_HEIGHT),
   ]);
 }
 

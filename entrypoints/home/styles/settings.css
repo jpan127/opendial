@@ -167,8 +167,6 @@
   color: var(--od-text-muted);
 }
 
-.seg button.is-on {
-  background: var(--od-surface);
-  color: var(--od-text);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--od-text) 16%, transparent);
+.seg-block .size-row {
+  padding: 8px 0 4px;
 }

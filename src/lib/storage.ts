@@ -11,8 +11,17 @@ import type {
   ThemeName,
   WeatherCache,
   CalcHistoryEntry,
+  RedditCacheBank,
+  RedditSort,
 } from '@/src/types';
-import { DEFAULT_DIAL_SIZE, DEFAULT_FORECAST_DAYS, DEFAULT_GREETING_SIZE } from '@/src/types';
+import {
+  DEFAULT_DIAL_SIZE,
+  DEFAULT_FORECAST_DAYS,
+  DEFAULT_GREETING_SIZE,
+  DEFAULT_REDDIT_LIMIT,
+  DEFAULT_REDDIT_LIST_HEIGHT,
+  DEFAULT_REDDIT_WIDTH,
+} from '@/src/types';
 
 export const STORAGE_KEYS = {
   theme: 'opendial.theme',
@@ -35,6 +44,13 @@ export const STORAGE_KEYS = {
   calcHistory: 'opendial.calcHistory',
   svglCatalog: 'opendial.svglCatalog', // not in backup
   simpleIconsCatalog: 'opendial.simpleIconsCatalog', // not in backup
+  showReddit: 'opendial.showReddit',
+  redditSubs: 'opendial.redditSubs',
+  redditLimit: 'opendial.redditLimit',
+  redditSort: 'opendial.redditSort',
+  redditWidth: 'opendial.redditWidth',
+  redditListHeight: 'opendial.redditListHeight',
+  redditCache: 'opendial.redditCache', // not in backup
 } as const;
 
 export const DEFAULT_GREETING: Greeting = {
@@ -177,4 +193,34 @@ const EMPTY_CALC_HISTORY: CalcHistoryEntry[] = [];
 
 export function useCalcHistory() {
   return useLocalState<CalcHistoryEntry[]>(STORAGE_KEYS.calcHistory, EMPTY_CALC_HISTORY);
+}
+
+export function useShowReddit() {
+  return useLocalState<boolean>(STORAGE_KEYS.showReddit, false);
+}
+
+const EMPTY_REDDIT_SUBS: string[] = [];
+
+export function useRedditSubs() {
+  return useLocalState<string[]>(STORAGE_KEYS.redditSubs, EMPTY_REDDIT_SUBS);
+}
+
+export function useRedditLimit() {
+  return useLocalState<number>(STORAGE_KEYS.redditLimit, DEFAULT_REDDIT_LIMIT);
+}
+
+export function useRedditSort() {
+  return useLocalState<RedditSort>(STORAGE_KEYS.redditSort, 'hot');
+}
+
+export function useRedditWidth() {
+  return useLocalState<number>(STORAGE_KEYS.redditWidth, DEFAULT_REDDIT_WIDTH);
+}
+
+export function useRedditListHeight() {
+  return useLocalState<number>(STORAGE_KEYS.redditListHeight, DEFAULT_REDDIT_LIST_HEIGHT);
+}
+
+export function useRedditCache() {
+  return useLocalState<RedditCacheBank | null>(STORAGE_KEYS.redditCache, null);
 }

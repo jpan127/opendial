@@ -1,7 +1,7 @@
 // OpenDial new-tab page.
 //
 // This is the layout root: left rail (Top 10 / recently closed), top-left
-// clock/weather card, top-right calculator/settings/theme, then greeting,
+// clock/weather and optional Reddit cards, top-right calculator/settings/theme, then greeting,
 // search, and the speed-dial grid.
 //
 // It owns the chrome.storage-backed settings that several children share
@@ -13,6 +13,7 @@ import { DialGrid } from '@/src/components/DialGrid';
 import { Greeting } from '@/src/components/Greeting';
 import { LeftRail } from '@/src/components/LeftRail';
 import { LocalWidgets } from '@/src/components/LocalWidgets';
+import { Reddit } from '@/src/components/Reddit';
 import { SearchBar } from '@/src/components/SearchBar';
 import { SettingsMenu } from '@/src/components/SettingsMenu';
 import { ThemeToggle } from '@/src/components/ThemeToggle';
@@ -24,6 +25,7 @@ import {
   useGreeting,
   useGreetingSize,
   useShowClock,
+  useShowReddit,
   useShowWeather,
   useTempUnit,
   useTheme,
@@ -40,6 +42,7 @@ export default function App() {
   const [greetingSize] = useGreetingSize();
   const [showClock] = useShowClock();
   const [showWeather] = useShowWeather();
+  const [showReddit] = useShowReddit();
   const [forecastDays] = useForecastDays();
 
   // Settings sliders write CSS variables used by the dial grid and greeting.
@@ -64,6 +67,7 @@ export default function App() {
               unit={tempUnit}
               onUnitChange={setTempUnit}
             />
+            {showReddit ? <Reddit /> : null}
           </div>
           <div className="topbar-right">
             <Calculator />

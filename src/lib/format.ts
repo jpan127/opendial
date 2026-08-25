@@ -51,6 +51,23 @@ export function relativeTime(epochSeconds: number): string {
   return `${days}d`;
 }
 
+export function ageLabel(thenMs: number, nowMs = Date.now()): string {
+  const minutes = Math.max(0, Math.round((nowMs - thenMs) / 60_000));
+  if (minutes < 1) return 'just now';
+  if (minutes === 1) return '1 min ago';
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours === 1) return '1 hr ago';
+  if (hours < 24) return `${hours} hr ago`;
+  const days = Math.round(hours / 24);
+  return days === 1 ? '1 day ago' : `${days} days ago`;
+}
+
+export function waitMinutesLabel(ms: number): string {
+  const minutes = Math.max(1, Math.ceil(ms / 60_000));
+  return minutes === 1 ? '1 min' : `${minutes} min`;
+}
+
 export function monogram(label: string): string {
   const cleaned = label.replace(/^www\./, '').trim();
   return (cleaned[0] ?? '?').toUpperCase();

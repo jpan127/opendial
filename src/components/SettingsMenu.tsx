@@ -1,6 +1,6 @@
 // Gear menu for page chrome that is not edited in place.
 //
-// Widgets: Clock, Weather, Calculator button, forecast day count.
+// Widgets: Clock, Weather, Calculator button, Reddit RSS, forecast day count.
 // Layout: greeting size and dial tile size (CSS variables on `<html>`).
 // Sidebar: show/hide Top 10 and Recently closed (hiding both removes the rail).
 // Backup: export/import JSON of dials and settings (not weather cache,
@@ -14,9 +14,12 @@ import {
   useDialSize,
   useForecastDays,
   useGreetingSize,
+  useRedditListHeight,
+  useRedditWidth,
   useShowCalculator,
   useShowClock,
   useShowRecentlyClosed,
+  useShowReddit,
   useShowTop10,
   useShowWeather,
 } from '@/src/lib/storage';
@@ -25,9 +28,13 @@ import {
   MAX_DIAL_SIZE,
   MAX_FORECAST_DAYS,
   MAX_GREETING_SIZE,
+  MAX_REDDIT_LIST_HEIGHT,
+  MAX_REDDIT_WIDTH,
   MIN_DIAL_SIZE,
   MIN_FORECAST_DAYS,
   MIN_GREETING_SIZE,
+  MIN_REDDIT_LIST_HEIGHT,
+  MIN_REDDIT_WIDTH,
 } from '@/src/types';
 
 export function SettingsMenu() {
@@ -40,6 +47,9 @@ export function SettingsMenu() {
   const [showTop10, setShowTop10] = useShowTop10();
   const [showRecentlyClosed, setShowRecentlyClosed] = useShowRecentlyClosed();
   const [showCalculator, setShowCalculator] = useShowCalculator();
+  const [showReddit, setShowReddit] = useShowReddit();
+  const [redditWidth, setRedditWidth] = useRedditWidth();
+  const [redditListHeight, setRedditListHeight] = useRedditListHeight();
   const fileRef = useRef<HTMLInputElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -106,6 +116,41 @@ export function SettingsMenu() {
               on={showCalculator}
               onToggle={() => setShowCalculator(!showCalculator)}
             />
+            <SwitchRow
+              label="Reddit"
+              on={showReddit}
+              onToggle={() => setShowReddit(!showReddit)}
+            />
+            <div className={`seg-block${showReddit ? '' : ' is-disabled'}`}>
+              <label className="size-row">
+                <span className="seg-label">
+                  Card width
+                  <span className="size-hint">{redditWidth}px</span>
+                </span>
+                <input
+                  type="range"
+                  min={MIN_REDDIT_WIDTH}
+                  max={MAX_REDDIT_WIDTH}
+                  value={redditWidth}
+                  disabled={!showReddit}
+                  onChange={(event) => setRedditWidth(Number(event.target.value))}
+                />
+              </label>
+              <label className="size-row">
+                <span className="seg-label">
+                  List height
+                  <span className="size-hint">{redditListHeight}px</span>
+                </span>
+                <input
+                  type="range"
+                  min={MIN_REDDIT_LIST_HEIGHT}
+                  max={MAX_REDDIT_LIST_HEIGHT}
+                  value={redditListHeight}
+                  disabled={!showReddit}
+                  onChange={(event) => setRedditListHeight(Number(event.target.value))}
+                />
+              </label>
+            </div>
             <div className={`seg-block${showWeather ? '' : ' is-disabled'}`}>
               <div className="seg-label">
                 <span>Forecast</span>

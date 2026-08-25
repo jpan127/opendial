@@ -29,6 +29,7 @@
 
 .topbar-left {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: var(--od-space-5);
   min-width: 0;

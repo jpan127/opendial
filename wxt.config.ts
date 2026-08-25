@@ -32,6 +32,8 @@ export default defineConfig({
       'https://svgl.app/*', // preview <img> only
       'https://cdn.jsdelivr.net/*',
       'https://cdn.simpleicons.org/*',
+      'https://www.reddit.com/*',
+      'https://old.reddit.com/*',
     ],
     action: {
       default_title: 'OpenDial',

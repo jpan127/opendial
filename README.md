@@ -1,6 +1,6 @@
 # OpenDial
 
-A personal Chrome new tab page: speed-dial tiles, a compact Google / ChatGPT / Gemini search bar, most-visited domains, recently closed tabs, local time, weather, and a small calculator.
+A personal Chrome new tab page: speed-dial tiles, a compact Google / ChatGPT / Gemini search bar, most-visited domains, recently closed tabs, local time, weather, a small calculator, and an optional Reddit RSS card.
 
 This is **not** on the Chrome Web Store. Load it unpacked. All dials and settings stay in `chrome.storage.local` on your machine.
 
@@ -66,9 +66,10 @@ Other scripts:
 - **Top 10** — the 10 most-visited domains from the last 90 days, with visit counts. Click the header to collapse, or turn the section off in the gear menu. Turning both sidebar sections off hides the rail. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
 - **Recently closed** — sits directly under Top 10. Click a row to restore that tab or window. Click the header to collapse, or turn the section off in the gear menu.
 - **Clock / Weather** — optional widgets in the top left, toggled from the gear menu. They share one card. The clock shows the date, time, and timezone. Weather uses the browser location, or click it to set a city. Shows city and state/region, today’s high/low, rain chance, UV, and US AQI. A **Forecast days** slider adds the next 1–6 days. Click **°C** / **°F** to switch units. Data from [Open-Meteo](https://open-meteo.com/).
+- **Reddit** — optional card next to clock/weather. Turn it on in the gear menu, then add subreddits on the card (`Add r/subreddit`). OpenDial fetches one combined public RSS feed (`/r/a+b/hot/.rss`). Pills default on (pastel green); click one to hide that sub until you reload the page. Hot / Today / Week is on the card. The footer shows when the feed was last pulled. Refresh is disabled for 15 minutes after a successful pull so Reddit does not rate-limit you. Gear sliders set card width and list height. The list shows every post in the pulled feed (up to 100). If Reddit rate-limits RSS, the card tries the old.reddit listing page once, or keeps the last saved posts. No Reddit login.
 - **Calculator** — the keypad icon in the top right, or **Alt+C**. Type an expression and press Enter. History is stored locally. Hide the button from the gear menu. Open/closed state still persists across new tabs.
 - **Theme** — sun/moon in the top right. Defaults to dark and persists.
-- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, sidebar sections, tile size, greeting size, search engine, calculator visibility, and whether the calculator panel was open.
+- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, sidebar sections, tile size, greeting size, search engine, calculator visibility, whether the calculator panel was open, and Reddit settings (not the post cache).
 
 ---
 
@@ -107,5 +108,7 @@ Change the CSS variables there (`--od-bg`, `--od-glow`, `--od-font-greeting`, `-
 | Host access to ChatGPT / Gemini | Fill the prompt when you search with those engines |
 | Host access to SVGL | Suggested brand logos |
 | Host access to jsDelivr / Simple Icons | Fallback suggested logos |
+| Host access to www.reddit.com | Combined public RSS for the Reddit card (fetched from the extension worker; Reddit has no CORS headers) |
+| Host access to old.reddit.com | HTML listing fallback if RSS is blocked |
 
 Weather data by [Open-Meteo](https://open-meteo.com/).
