@@ -86,6 +86,8 @@ export type BackupPayload = {
   redditSort?: RedditSort;
   redditWidth?: number;
   redditListHeight?: number;
+  dockWidth?: number;
+  widgetOrder?: WidgetId[];
 };
 
 export type RedditSort = 'hot' | 'day' | 'week';
@@ -135,12 +137,16 @@ export const DEFAULT_REDDIT_WIDTH = 380;
 export const MIN_REDDIT_WIDTH = 280;
 export const MAX_REDDIT_WIDTH = 560;
 
+export const DEFAULT_DOCK_WIDTH = 320;
+export const MIN_DOCK_WIDTH = 260;
+export const MAX_DOCK_WIDTH = 1200;
+
 export const DEFAULT_REDDIT_LIST_HEIGHT = 360;
 export const MIN_REDDIT_LIST_HEIGHT = 200;
 export const MAX_REDDIT_LIST_HEIGHT = 800;
 
-// Sidebar section headers; `true` means collapsed.
-export type RailCollapsed = {
-  top10: boolean;
-  closed: boolean;
-};
+export type WidgetId = 'clock' | 'weather' | 'top10' | 'closed' | 'reddit';
+
+export const WIDGET_IDS: WidgetId[] = ['clock', 'weather', 'top10', 'closed', 'reddit'];
+
+export const DEFAULT_WIDGET_ORDER: WidgetId[] = ['clock', 'weather', 'top10', 'closed', 'reddit'];

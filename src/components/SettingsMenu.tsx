@@ -1,10 +1,9 @@
 // Gear menu for page chrome that is not edited in place.
 //
-// Widgets: Clock, Weather, Calculator button, Reddit RSS, forecast day count.
-// Layout: greeting size and dial tile size (CSS variables on `<html>`).
-// Sidebar: show/hide Top 10 and Recently closed (hiding both removes the rail).
-// Backup: export/import JSON of dials and settings (not weather cache,
-// logo catalogs, or calculator history).
+// Widgets: Clock, Weather, Calculator button, Reddit RSS, Top 10, recently
+// closed, forecast day count. Layout: greeting size and dial tile size
+// (CSS variables on `<html>`). Backup: export/import JSON of dials and
+// settings (not weather cache, logo catalogs, or calculator history).
 //
 // Click-outside and Escape close the menu. Import replaces stored settings
 // in place; a bad file alerts and leaves the current data alone.
@@ -15,7 +14,6 @@ import {
   useForecastDays,
   useGreetingSize,
   useRedditListHeight,
-  useRedditWidth,
   useShowCalculator,
   useShowClock,
   useShowRecentlyClosed,
@@ -29,12 +27,10 @@ import {
   MAX_FORECAST_DAYS,
   MAX_GREETING_SIZE,
   MAX_REDDIT_LIST_HEIGHT,
-  MAX_REDDIT_WIDTH,
   MIN_DIAL_SIZE,
   MIN_FORECAST_DAYS,
   MIN_GREETING_SIZE,
   MIN_REDDIT_LIST_HEIGHT,
-  MIN_REDDIT_WIDTH,
 } from '@/src/types';
 
 export function SettingsMenu() {
@@ -48,7 +44,6 @@ export function SettingsMenu() {
   const [showRecentlyClosed, setShowRecentlyClosed] = useShowRecentlyClosed();
   const [showCalculator, setShowCalculator] = useShowCalculator();
   const [showReddit, setShowReddit] = useShowReddit();
-  const [redditWidth, setRedditWidth] = useRedditWidth();
   const [redditListHeight, setRedditListHeight] = useRedditListHeight();
   const fileRef = useRef<HTMLInputElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -121,21 +116,17 @@ export function SettingsMenu() {
               on={showReddit}
               onToggle={() => setShowReddit(!showReddit)}
             />
+            <SwitchRow
+              label="Top 10"
+              on={showTop10}
+              onToggle={() => setShowTop10(!showTop10)}
+            />
+            <SwitchRow
+              label="Recently closed"
+              on={showRecentlyClosed}
+              onToggle={() => setShowRecentlyClosed(!showRecentlyClosed)}
+            />
             <div className={`seg-block${showReddit ? '' : ' is-disabled'}`}>
-              <label className="size-row">
-                <span className="seg-label">
-                  Card width
-                  <span className="size-hint">{redditWidth}px</span>
-                </span>
-                <input
-                  type="range"
-                  min={MIN_REDDIT_WIDTH}
-                  max={MAX_REDDIT_WIDTH}
-                  value={redditWidth}
-                  disabled={!showReddit}
-                  onChange={(event) => setRedditWidth(Number(event.target.value))}
-                />
-              </label>
               <label className="size-row">
                 <span className="seg-label">
                   List height
@@ -206,19 +197,6 @@ export function SettingsMenu() {
                 onChange={(event) => setDialSize(Number(event.target.value))}
               />
             </label>
-          </section>
-          <section className="settings-group">
-            <p className="settings-heading">Sidebar</p>
-            <SwitchRow
-              label="Top 10"
-              on={showTop10}
-              onToggle={() => setShowTop10(!showTop10)}
-            />
-            <SwitchRow
-              label="Recently closed"
-              on={showRecentlyClosed}
-              onToggle={() => setShowRecentlyClosed(!showRecentlyClosed)}
-            />
           </section>
           <section className="settings-group">
             <p className="settings-heading">Backup</p>

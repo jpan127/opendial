@@ -4,11 +4,11 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: var(--od-rail-width) 1fr;
+  grid-template-columns: var(--od-dock-width) 1fr;
   min-height: 100vh;
 }
 
-.app:not(:has(.rail)) {
+.app:not(:has(.widget-dock)) {
   grid-template-columns: 1fr;
 }
 
@@ -22,17 +22,9 @@
 .topbar {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-end;
   min-height: var(--od-header-height);
   gap: var(--od-space-4);
-}
-
-.topbar-left {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--od-space-5);
-  min-width: 0;
 }
 
 .topbar-right {
@@ -160,10 +152,9 @@
     grid-template-columns: 1fr;
   }
 
-  .rail {
+  .widget-dock {
     min-height: 0;
-    max-height: none;
-    flex-direction: column;
+    max-height: 40vh;
     border-right: 0;
     border-bottom: 1px solid var(--od-border);
   }

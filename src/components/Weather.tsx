@@ -1,9 +1,10 @@
-// Weather pane in the top-left widget card.
+// Weather pane in the left widget dock.
 //
 // Current temperature, condition, city, high/low, rain chance, UV, and US
 // AQI from Open-Meteo (plus reverse-geocode for a place name). Optional
-// forecast chips for the next 1–6 days (slider in Settings). °C/°F is
-// stored. Click the summary to type a city; an empty city goes back to GPS.
+// forecast chips for the next 1–6 days (slider in Settings). Unit is
+// stored from locale on first run (US → °F). Click the summary to type a
+// city; an empty city goes back to GPS.
 //
 // Data is cached ~20 minutes. If location is denied and no city is set,
 // the pane invites the user to set a city. Hidden when Weather is off.
@@ -20,11 +21,10 @@ import {
 
 type Props = {
   unit: TempUnit;
-  onUnitChange: (unit: TempUnit) => void;
   forecastDays: number;
 };
 
-export function Weather({ unit, onUnitChange, forecastDays }: Props) {
+export function Weather({ unit, forecastDays }: Props) {
   const [data, setData] = useState<WeatherCache | null>(null);
   const [editing, setEditing] = useState(false);
   const [city, setCity] = useState('');
@@ -39,7 +39,7 @@ export function Weather({ unit, onUnitChange, forecastDays }: Props) {
   if (editing) {
     return (
       <form
-        className="weather-edit"
+        className="weather-edit widget-no-drag"
         onSubmit={(event) => {
           event.preventDefault();
           void setWeatherCity(city)
@@ -109,26 +109,6 @@ export function Weather({ unit, onUnitChange, forecastDays }: Props) {
             </span>
           </span>
         </button>
-        <div
-          className="unit-seg"
-          role="group"
-          aria-label="Temperature unit"
-        >
-          <button
-            type="button"
-            className={unit === 'f' ? 'is-on' : ''}
-            onClick={() => onUnitChange('f')}
-          >
-            °F
-          </button>
-          <button
-            type="button"
-            className={unit === 'c' ? 'is-on' : ''}
-            onClick={() => onUnitChange('c')}
-          >
-            °C
-          </button>
-        </div>
       </div>
       {upcoming.length > 0 ? (
         <div className="forecast-row">

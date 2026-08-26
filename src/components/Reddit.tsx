@@ -1,4 +1,4 @@
-// Combined Reddit RSS card in the top-left bar.
+// Combined Reddit RSS card in the left widget dock.
 //
 // Subreddits are added on the card. Pills default on (pastel green); click
 // to hide a sub until reload (not stored). One network load covers all of
@@ -6,12 +6,12 @@
 // for 15 minutes after a successful pull so we do not 429.
 import { useEffect, useState, type CSSProperties } from 'react';
 import { ageLabel, formatCount, relativeTime, waitMinutesLabel } from '@/src/lib/format';
+import { useOverlayScroll } from '@/src/lib/overlayScroll';
 import { loadReddit, lookupSubreddit, normalizeSubreddit, prefetchRedditSorts, REDDIT_CACHE_MS } from '@/src/lib/reddit';
 import {
   useRedditListHeight,
   useRedditSort,
   useRedditSubs,
-  useRedditWidth,
 } from '@/src/lib/storage';
 import { MAX_REDDIT_SUBS } from '@/src/types';
 import type { RedditPost, RedditSort } from '@/src/types';
@@ -25,7 +25,6 @@ const SORTS: { id: RedditSort; label: string }[] = [
 export function Reddit() {
   const [subs, setSubs] = useRedditSubs();
   const [sort, setSort] = useRedditSort();
-  const [width] = useRedditWidth();
   const [listHeight] = useRedditListHeight();
   const [draft, setDraft] = useState('');
   const [addError, setAddError] = useState('');
@@ -36,6 +35,7 @@ export function Reddit() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'empty'>('idle');
   const [blocked, setBlocked] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  const listScroll = useOverlayScroll();
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 15_000);
@@ -140,15 +140,13 @@ export function Reddit() {
       className="reddit-card now-card"
       style={
         {
-          width: `${width}px`,
-          maxWidth: '100%',
           '--od-reddit-list-height': `${listHeight}px`,
         } as CSSProperties
       }
     >
       <header className="reddit-head">
         <h2 className="reddit-title">Reddit</h2>
-        <div className="reddit-sort" role="radiogroup" aria-label="Reddit sort">
+        <div className="reddit-sort widget-no-drag" role="radiogroup" aria-label="Reddit sort">
           {SORTS.map((item) => (
             <button
               key={item.id}
@@ -164,7 +162,7 @@ export function Reddit() {
         </div>
       </header>
       <form
-        className="reddit-add"
+        className="reddit-add widget-no-drag"
         onSubmit={(event) => {
           event.preventDefault();
           addSub();
@@ -186,7 +184,7 @@ export function Reddit() {
       </form>
       {addError ? <p className="reddit-note reddit-add-error">{addError}</p> : null}
       {subs.length > 0 ? (
-        <ul className="reddit-chips">
+        <ul className="reddit-chips od-scroll-x widget-no-drag">
           {subs.map((sub) => {
             const on = !hidden.includes(sub);
             return (
@@ -231,7 +229,10 @@ export function Reddit() {
           {blocked ? 'Reddit blocked this request' : 'No posts in this feed'}
         </p>
       ) : (
-        <ul className="reddit-list">
+        <ul
+          className={`reddit-list od-scroll${listScroll.scrolling ? ' is-scrolling' : ''}`}
+          onScroll={listScroll.onScroll}
+        >
           {visible.map((post) => (
             <li key={post.id}>
               <a
@@ -265,7 +266,7 @@ export function Reddit() {
                   blocked ? 'Last saved' : 'Pulled'
                 } ${pulledClock} · ${ageLabel(fetchedAt, now)}`}
           </p>
-          <span className="reddit-refresh-wrap" title={refreshTitle}>
+          <span className="reddit-refresh-wrap widget-no-drag" title={refreshTitle}>
             <button
               type="button"
               className={`reddit-refresh${loading ? ' is-busy' : ''}`}

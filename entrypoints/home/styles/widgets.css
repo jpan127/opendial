@@ -1,3 +1,274 @@
+/* Overlay scrollbars: always the same width so hover does not shift layout.
+   The thumb is transparent until the pane is hovered or scrolling. */
+
+.od-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.od-scroll:hover,
+.od-scroll.is-scrolling {
+  scrollbar-color: var(--od-scrollbar) transparent;
+}
+
+.od-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.od-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.od-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 99px;
+}
+
+.od-scroll:hover::-webkit-scrollbar-thumb,
+.od-scroll.is-scrolling::-webkit-scrollbar-thumb {
+  background: var(--od-scrollbar);
+}
+
+.od-scroll-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.od-scroll-x:hover,
+.od-scroll-x:focus-within {
+  scrollbar-color: var(--od-scrollbar) transparent;
+}
+
+.od-scroll-x::-webkit-scrollbar {
+  height: 4px;
+}
+
+.od-scroll-x::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.od-scroll-x::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 99px;
+}
+
+.od-scroll-x:hover::-webkit-scrollbar-thumb,
+.od-scroll-x:focus-within::-webkit-scrollbar-thumb {
+  background: var(--od-scrollbar);
+}
+
+/* Left widget dock. */
+
+.widget-dock {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--od-space-4);
+  min-height: 100vh;
+  max-height: 100vh;
+  min-width: 0;
+  padding: var(--od-space-4) 20px var(--od-header-height) var(--od-space-3);
+  border-right: 1px solid var(--od-border);
+  background: color-mix(in srgb, var(--od-bg) 88%, var(--od-surface));
+}
+
+.widget-dock.is-reordering,
+.widget-dock.is-resizing {
+  user-select: none;
+}
+
+.widget-dock-resize.widget-no-drag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 6;
+  width: 20px;
+  height: 100%;
+  cursor: ew-resize;
+  background: transparent;
+}
+
+.widget-dock-grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 28px;
+  border: 0;
+  border-radius: 0;
+  background: radial-gradient(
+      circle closest-side,
+      var(--od-text-muted) 1.35px,
+      transparent 1.45px
+    )
+    50% 0 / 6px 9px;
+  box-shadow: none;
+  opacity: 0.85;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.widget-dock:has(.widget-dock-resize:hover),
+.widget-dock.is-resizing {
+  border-right-color: color-mix(in srgb, var(--od-accent) 70%, var(--od-border));
+}
+
+.widget-dock-resize:hover .widget-dock-grip,
+.widget-dock.is-resizing .widget-dock-grip {
+  opacity: 1;
+  background: radial-gradient(
+      circle closest-side,
+      var(--od-accent) 1.35px,
+      transparent 1.45px
+    )
+    50% 0 / 6px 9px;
+}
+
+html.is-dock-resizing,
+html.is-dock-resizing * {
+  cursor: ew-resize !important;
+}
+
+.widget-dock .now-card,
+.widget-ghost .now-card {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.widget-slot {
+  min-width: 0;
+  cursor: grab;
+}
+
+.widget-dock.is-reordering .widget-slot {
+  cursor: grabbing;
+}
+
+.widget-no-drag {
+  cursor: auto;
+}
+
+.widget-slot.is-dragging {
+  opacity: 0.35;
+}
+
+.widget-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  pointer-events: none;
+  margin: 0;
+}
+
+.widget-dock .reddit-card,
+.widget-ghost .reddit-card {
+  min-width: 0;
+}
+
+.clock-card,
+.weather-card {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.widget-dock .weather-pane,
+.widget-ghost .weather-pane {
+  width: max-content;
+  max-width: 100%;
+}
+
+.now-card.widget-card,
+.now-card.reddit-card {
+  align-items: stretch;
+}
+
+.widget-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 14px 14px 12px;
+}
+
+.widget-title {
+  margin: 0;
+  width: 100%;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--od-text);
+  text-align: left;
+}
+
+.widget-list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.widget-list-scroll {
+  max-height: var(--od-closed-list-height, 280px);
+}
+
+.widget-row {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: var(--od-space-2);
+  width: 100%;
+  padding: 7px 6px;
+  border: 0;
+  border-radius: var(--od-radius-sm);
+  background: transparent;
+  text-align: left;
+  color: var(--od-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.widget-row:hover {
+  background: var(--od-surface-hover);
+}
+
+.widget-favicon,
+.widget-mono {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+
+.widget-mono {
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  background: var(--od-tile);
+}
+
+.widget-row-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.88rem;
+  color: var(--od-text);
+}
+
+.widget-row-meta {
+  font-size: 0.78rem;
+  color: var(--od-text-muted);
+}
+
+.widget-empty {
+  padding: 8px 6px;
+  font-size: 0.84rem;
+  color: var(--od-text-muted);
+}
+
 /* Clock and weather card. */
 
 .clock {
@@ -198,33 +469,6 @@
   background: var(--od-surface);
 }
 
-.unit-seg {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  flex-shrink: 0;
-  padding: 3px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--od-text) 8%, transparent);
-}
-
-.unit-seg button {
-  height: 28px;
-  min-width: 38px;
-  padding: 0 8px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  font-size: 0.78rem;
-  font-weight: 650;
-  color: var(--od-text-muted);
-}
-
-.unit-seg button.is-on {
-  background: var(--od-surface);
-  color: var(--od-text);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--od-text) 16%, transparent);
-}
-
 .forecast-row {
   display: flex;
   flex-wrap: wrap;
@@ -359,33 +603,6 @@
   margin: 2px 0 0;
   padding: 0;
   list-style: none;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-}
-
-.reddit-chips:hover,
-.reddit-chips:focus-within {
-  scrollbar-width: thin;
-  scrollbar-color: var(--od-scrollbar) transparent;
-}
-
-.reddit-chips::-webkit-scrollbar {
-  height: 0;
-}
-
-.reddit-chips:hover::-webkit-scrollbar,
-.reddit-chips:focus-within::-webkit-scrollbar {
-  height: 4px;
-}
-
-.reddit-chips::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.reddit-chips::-webkit-scrollbar-thumb {
-  background: var(--od-scrollbar);
-  border-radius: 99px;
 }
 
 .reddit-chips li {
@@ -460,33 +677,6 @@
   padding: 0 4px;
   list-style: none;
   max-height: var(--od-reddit-list-height, 360px);
-  overflow-x: hidden;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-
-.reddit-list:hover,
-.reddit-list:focus-within {
-  scrollbar-width: thin;
-  scrollbar-color: var(--od-scrollbar) transparent;
-}
-
-.reddit-list::-webkit-scrollbar {
-  width: 0;
-}
-
-.reddit-list:hover::-webkit-scrollbar,
-.reddit-list:focus-within::-webkit-scrollbar {
-  width: 4px;
-}
-
-.reddit-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.reddit-list::-webkit-scrollbar-thumb {
-  background: var(--od-scrollbar);
-  border-radius: 99px;
 }
 
 .reddit-list > li + li .reddit-row {

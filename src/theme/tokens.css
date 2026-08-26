@@ -7,7 +7,7 @@
   Quick knobs:
     --od-bg / --od-glow     page background + radial wash
     --od-grain-opacity      0 to disable the noise overlay
-    --od-rail-width         left sidebar width
+    --od-dock-width         left widget dock width
     --od-dial-size          minimum tile size
     --od-font-greeting      the "hello {name}" face
     --od-radius-*           corner roundness
@@ -21,7 +21,8 @@
   --od-now-hero: 2.4rem;
   --od-weather-size: 1.2rem;
   --od-icon-size: 48px;
-  --od-rail-width: 268px;
+  --od-dock-width: 320px;
+  --od-closed-list-height: 280px;
   --od-dial-size: 148px;
   --od-dial-gap: 22px;
   --od-dial-max-width: 920px;

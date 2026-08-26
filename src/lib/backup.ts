@@ -16,8 +16,13 @@ import {
   DEFAULT_REDDIT_LIMIT,
   DEFAULT_REDDIT_LIST_HEIGHT,
   DEFAULT_REDDIT_WIDTH,
+  DEFAULT_DOCK_WIDTH,
+  DEFAULT_WIDGET_ORDER,
+  MAX_DOCK_WIDTH,
+  MIN_DOCK_WIDTH,
 } from '@/src/types';
 import { DEFAULT_GREETING, STORAGE_KEYS, getLocal, setLocal } from '@/src/lib/storage';
+import { normalizeWidgetOrder } from '@/src/lib/widgets';
 
 export async function exportBackup(): Promise<BackupPayload> {
   const [
@@ -42,6 +47,8 @@ export async function exportBackup(): Promise<BackupPayload> {
     redditSort,
     redditWidth,
     redditListHeight,
+    widgetOrder,
+    dockWidth,
   ] = await Promise.all([
     getLocal<ThemeName>(STORAGE_KEYS.theme, 'dark'),
     getLocal<Greeting>(STORAGE_KEYS.greeting, DEFAULT_GREETING),
@@ -64,6 +71,8 @@ export async function exportBackup(): Promise<BackupPayload> {
     getLocal<RedditSort>(STORAGE_KEYS.redditSort, 'hot'),
     getLocal<number>(STORAGE_KEYS.redditWidth, DEFAULT_REDDIT_WIDTH),
     getLocal<number>(STORAGE_KEYS.redditListHeight, DEFAULT_REDDIT_LIST_HEIGHT),
+    getLocal<string[]>(STORAGE_KEYS.widgetOrder, DEFAULT_WIDGET_ORDER),
+    getLocal<number>(STORAGE_KEYS.dockWidth, DEFAULT_DOCK_WIDTH),
   ]);
 
   return {
@@ -89,6 +98,8 @@ export async function exportBackup(): Promise<BackupPayload> {
     redditSort,
     redditWidth,
     redditListHeight,
+    widgetOrder: normalizeWidgetOrder(widgetOrder),
+    dockWidth: Math.min(MAX_DOCK_WIDTH, Math.max(MIN_DOCK_WIDTH, Math.round(dockWidth))),
   };
 }
 
@@ -119,6 +130,14 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
     setLocal(STORAGE_KEYS.redditSort, payload.redditSort ?? 'hot'),
     setLocal(STORAGE_KEYS.redditWidth, payload.redditWidth ?? DEFAULT_REDDIT_WIDTH),
     setLocal(STORAGE_KEYS.redditListHeight, payload.redditListHeight ?? DEFAULT_REDDIT_LIST_HEIGHT),
+    setLocal(STORAGE_KEYS.widgetOrder, normalizeWidgetOrder(payload.widgetOrder ?? DEFAULT_WIDGET_ORDER)),
+    setLocal(
+      STORAGE_KEYS.dockWidth,
+      Math.min(
+        MAX_DOCK_WIDTH,
+        Math.max(MIN_DOCK_WIDTH, Math.round(payload.dockWidth ?? payload.redditWidth ?? DEFAULT_DOCK_WIDTH)),
+      ),
+    ),
   ]);
 }
 

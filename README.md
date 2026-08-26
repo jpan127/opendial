@@ -63,13 +63,14 @@ Other scripts:
   - Google: `google.com/search?q=`
   - ChatGPT / Gemini: OpenDial opens the site and fills the prompt box (you need to be signed in)
 - **Dials** — click a tile to open it. Ctrl/Cmd-click opens a new tab. The dashed **+** tile adds a site. Right-click a tile to edit or delete. Drag tiles to reorder. Icon choices: **Suggested** (SVGL, then Simple Icons, then the site favicon), the site’s favicon, an uploaded image, or an image URL. Suggested logos are downloaded once and stored as local PNGs. Tile size is a slider in the gear menu.
-- **Top 10** — the 10 most-visited domains from the last 90 days, with visit counts. Click the header to collapse, or turn the section off in the gear menu. Turning both sidebar sections off hides the rail. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
-- **Recently closed** — sits directly under Top 10. Click a row to restore that tab or window. Click the header to collapse, or turn the section off in the gear menu.
-- **Clock / Weather** — optional widgets in the top left, toggled from the gear menu. They share one card. The clock shows the date, time, and timezone. Weather uses the browser location, or click it to set a city. Shows city and state/region, today’s high/low, rain chance, UV, and US AQI. A **Forecast days** slider adds the next 1–6 days. Click **°C** / **°F** to switch units. Data from [Open-Meteo](https://open-meteo.com/).
-- **Reddit** — optional card next to clock/weather. Turn it on in the gear menu, then add subreddits on the card (`Add r/subreddit`). OpenDial fetches one combined public RSS feed (`/r/a+b/hot/.rss`). Pills default on (pastel green); click one to hide that sub until you reload the page. Hot / Today / Week is on the card. The footer shows when the feed was last pulled. Refresh is disabled for 15 minutes after a successful pull so Reddit does not rate-limit you. Gear sliders set card width and list height. The list shows every post in the pulled feed (up to 100). If Reddit rate-limits RSS, the card tries the old.reddit listing page once, or keeps the last saved posts. No Reddit login.
+- **Widget dock** — left column of cards (clock/weather, Top 10, recently closed, Reddit). Drag a card to reorder. Drag the dock’s right edge to change its width; cards follow. Turn cards off in the gear menu; hiding every card removes the dock. Scrollbars stay hidden until you hover or scroll, and they overlay so layout does not shift.
+- **Top 10** — the 10 most-visited domains from the last 90 days, with visit counts. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
+- **Recently closed** — click a row to restore that tab or window. The list scrolls inside the card.
+- **Clock / Weather** — optional widgets, each its own card, toggled from the gear menu. Drag to reorder like the other dock cards. The clock shows the date, time, and timezone. Weather uses the browser location, or click it to set a city. Shows city and state/region, today’s high/low, rain chance, UV, and US AQI. A **Forecast days** slider adds the next 1–6 days. Temperature unit follows your browser locale (US → °F). Data from [Open-Meteo](https://open-meteo.com/).
+- **Reddit** — optional card. Turn it on in the gear menu, then add subreddits on the card (`Add r/subreddit`). OpenDial fetches one combined public RSS feed (`/r/a+b/hot/.rss`). Pills default on (pastel green); click one to hide that sub until you reload the page. Hot / Today / Week is on the card. The footer shows when the feed was last pulled. Refresh is disabled for 15 minutes after a successful pull so Reddit does not rate-limit you. A gear slider sets list height. The list shows every post in the pulled feed (up to 100). If Reddit rate-limits RSS, the card tries the old.reddit listing page once, or keeps the last saved posts. No Reddit login.
 - **Calculator** — the keypad icon in the top right, or **Alt+C**. Type an expression and press Enter. History is stored locally. Hide the button from the gear menu. Open/closed state still persists across new tabs.
 - **Theme** — sun/moon in the top right. Defaults to dark and persists.
-- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, sidebar sections, tile size, greeting size, search engine, calculator visibility, whether the calculator panel was open, and Reddit settings (not the post cache).
+- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, widget order, tile size, greeting size, search engine, calculator visibility, whether the calculator panel was open, and Reddit settings (not the post cache).
 
 ---
 
@@ -86,9 +87,9 @@ To hide it:
 
 ## Restyle
 
-Colors, glow, grain, fonts, rail width, and tile size live in [`src/theme/tokens.css`](src/theme/tokens.css). Layout and component rules are split under [`entrypoints/home/styles/`](entrypoints/home/styles/).
+Colors, glow, grain, fonts, dock width, and tile size live in [`src/theme/tokens.css`](src/theme/tokens.css). Layout and component rules are split under [`entrypoints/home/styles/`](entrypoints/home/styles/).
 
-Change the CSS variables there (`--od-bg`, `--od-glow`, `--od-font-greeting`, `--od-rail-width`, …). Components only use `var(--od-*)`. Dark and light themes are both in that file.
+Change the CSS variables there (`--od-bg`, `--od-glow`, `--od-font-greeting`, `--od-dock-width`, …). Components only use `var(--od-*)`. Dark and light themes are both in that file.
 
 ---
 

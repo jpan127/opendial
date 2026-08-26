@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import type {
   Dial,
   Greeting,
-  RailCollapsed,
   SearchEngine,
   TempUnit,
   ThemeName,
@@ -13,6 +12,7 @@ import type {
   CalcHistoryEntry,
   RedditCacheBank,
   RedditSort,
+  WidgetId,
 } from '@/src/types';
 import {
   DEFAULT_DIAL_SIZE,
@@ -21,6 +21,8 @@ import {
   DEFAULT_REDDIT_LIMIT,
   DEFAULT_REDDIT_LIST_HEIGHT,
   DEFAULT_REDDIT_WIDTH,
+  DEFAULT_DOCK_WIDTH,
+  DEFAULT_WIDGET_ORDER,
 } from '@/src/types';
 
 export const STORAGE_KEYS = {
@@ -38,7 +40,6 @@ export const STORAGE_KEYS = {
   forecastDays: 'opendial.forecastDays',
   showTop10: 'opendial.showTop10',
   showRecentlyClosed: 'opendial.showRecentlyClosed',
-  railCollapsed: 'opendial.railCollapsed',
   showCalculator: 'opendial.showCalculator', // panel open
   showCalculatorWidget: 'opendial.showCalculatorWidget', // toolbar button
   calcHistory: 'opendial.calcHistory',
@@ -51,6 +52,8 @@ export const STORAGE_KEYS = {
   redditWidth: 'opendial.redditWidth',
   redditListHeight: 'opendial.redditListHeight',
   redditCache: 'opendial.redditCache', // not in backup
+  widgetOrder: 'opendial.widgetOrder',
+  dockWidth: 'opendial.dockWidth',
 } as const;
 
 export const DEFAULT_GREETING: Greeting = {
@@ -173,10 +176,12 @@ export function useShowRecentlyClosed() {
   return useLocalState<boolean>(STORAGE_KEYS.showRecentlyClosed, true);
 }
 
-const DEFAULT_RAIL: RailCollapsed = { top10: false, closed: false };
+export function useWidgetOrder() {
+  return useLocalState<WidgetId[]>(STORAGE_KEYS.widgetOrder, DEFAULT_WIDGET_ORDER);
+}
 
-export function useRailCollapsed() {
-  return useLocalState<RailCollapsed>(STORAGE_KEYS.railCollapsed, DEFAULT_RAIL);
+export function useDockWidth() {
+  return useLocalState<number>(STORAGE_KEYS.dockWidth, DEFAULT_DOCK_WIDTH);
 }
 
 // Whether the calculator panel is open. Kept so new tabs restore it.
