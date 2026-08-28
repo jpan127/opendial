@@ -11,6 +11,7 @@ import type {
   WeatherCache,
   CalcHistoryEntry,
   RedditCacheBank,
+  Note,
   RedditSort,
   WidgetId,
 } from '@/src/types';
@@ -54,6 +55,7 @@ export const STORAGE_KEYS = {
   redditCache: 'opendial.redditCache', // not in backup
   widgetOrder: 'opendial.widgetOrder',
   dockWidth: 'opendial.dockWidth',
+  notes: 'opendial.notes', // included in backup JSON
 } as const;
 
 export const DEFAULT_GREETING: Greeting = {
@@ -62,6 +64,7 @@ export const DEFAULT_GREETING: Greeting = {
 };
 
 const EMPTY_DIALS: Dial[] = [];
+const EMPTY_NOTES: Note[] = [];
 
 // Read one key; missing keys return `fallback`.
 export async function getLocal<T>(key: string, fallback: T): Promise<T> {
@@ -228,4 +231,8 @@ export function useRedditListHeight() {
 
 export function useRedditCache() {
   return useLocalState<RedditCacheBank | null>(STORAGE_KEYS.redditCache, null);
+}
+
+export function useNotes() {
+  return useLocalState<Note[]>(STORAGE_KEYS.notes, EMPTY_NOTES);
 }

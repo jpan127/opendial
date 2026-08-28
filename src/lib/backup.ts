@@ -9,6 +9,7 @@ import type {
   TempUnit,
   ThemeName,
 } from '@/src/types';
+import { normalizeNotes } from '@/src/lib/notes';
 import {
   DEFAULT_DIAL_SIZE,
   DEFAULT_FORECAST_DAYS,
@@ -49,6 +50,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     redditListHeight,
     widgetOrder,
     dockWidth,
+    notes,
   ] = await Promise.all([
     getLocal<ThemeName>(STORAGE_KEYS.theme, 'dark'),
     getLocal<Greeting>(STORAGE_KEYS.greeting, DEFAULT_GREETING),
@@ -73,7 +75,10 @@ export async function exportBackup(): Promise<BackupPayload> {
     getLocal<number>(STORAGE_KEYS.redditListHeight, DEFAULT_REDDIT_LIST_HEIGHT),
     getLocal<string[]>(STORAGE_KEYS.widgetOrder, DEFAULT_WIDGET_ORDER),
     getLocal<number>(STORAGE_KEYS.dockWidth, DEFAULT_DOCK_WIDTH),
+    getLocal(STORAGE_KEYS.notes, []),
   ]);
+
+  const safeNotes = normalizeNotes(notes);
 
   return {
     version: 1,
@@ -98,8 +103,12 @@ export async function exportBackup(): Promise<BackupPayload> {
     redditSort,
     redditWidth,
     redditListHeight,
-    widgetOrder: normalizeWidgetOrder(widgetOrder),
+    widgetOrder: normalizeWidgetOrder(
+      widgetOrder,
+      safeNotes.map((note) => note.id),
+    ),
     dockWidth: Math.min(MAX_DOCK_WIDTH, Math.max(MIN_DOCK_WIDTH, Math.round(dockWidth))),
+    notes: safeNotes,
   };
 }
 
@@ -108,6 +117,12 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
   if (payload.version !== 1) {
     throw new Error('Unsupported backup version');
   }
+  // Older JSON has no notes key; still strip note: slots that have no note.
+  const notes = normalizeNotes(payload.notes ?? []);
+  const widgetOrder = normalizeWidgetOrder(
+    payload.widgetOrder ?? DEFAULT_WIDGET_ORDER,
+    notes.map((note) => note.id),
+  );
   await Promise.all([
     setLocal(STORAGE_KEYS.theme, payload.theme),
     setLocal(STORAGE_KEYS.greeting, payload.greeting),
@@ -130,7 +145,8 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
     setLocal(STORAGE_KEYS.redditSort, payload.redditSort ?? 'hot'),
     setLocal(STORAGE_KEYS.redditWidth, payload.redditWidth ?? DEFAULT_REDDIT_WIDTH),
     setLocal(STORAGE_KEYS.redditListHeight, payload.redditListHeight ?? DEFAULT_REDDIT_LIST_HEIGHT),
-    setLocal(STORAGE_KEYS.widgetOrder, normalizeWidgetOrder(payload.widgetOrder ?? DEFAULT_WIDGET_ORDER)),
+    setLocal(STORAGE_KEYS.widgetOrder, widgetOrder),
+    setLocal(STORAGE_KEYS.notes, notes),
     setLocal(
       STORAGE_KEYS.dockWidth,
       Math.min(

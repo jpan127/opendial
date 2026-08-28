@@ -88,6 +88,8 @@ export type BackupPayload = {
   redditListHeight?: number;
   dockWidth?: number;
   widgetOrder?: WidgetId[];
+  // Absent on backups from before notes existed.
+  notes?: Note[];
 };
 
 export type RedditSort = 'hot' | 'day' | 'week';
@@ -145,8 +147,33 @@ export const DEFAULT_REDDIT_LIST_HEIGHT = 360;
 export const MIN_REDDIT_LIST_HEIGHT = 200;
 export const MAX_REDDIT_LIST_HEIGHT = 800;
 
-export type WidgetId = 'clock' | 'weather' | 'top10' | 'closed' | 'reddit';
+export type NoteBlockKind = 'text' | 'bullet' | 'check';
 
-export const WIDGET_IDS: WidgetId[] = ['clock', 'weather', 'top10', 'closed', 'reddit'];
+export type NoteBlock = {
+  id: string;
+  kind: NoteBlockKind;
+  text: string;
+  // Checklist only. The square in the row toggles this; the bubble check icon does not.
+  done?: boolean;
+};
+
+export type Note = {
+  id: string;
+  title: string;
+  blocks: NoteBlock[];
+  createdAt: number;
+};
+
+export type BuiltinWidgetId = 'clock' | 'weather' | 'top10' | 'closed' | 'reddit';
+
+// Each note is its own dock slot so it can drag independently of the others.
+export type NoteSlotId = `note:${string}`;
+
+export type WidgetId = BuiltinWidgetId | NoteSlotId;
+
+export const WIDGET_IDS: BuiltinWidgetId[] = ['clock', 'weather', 'top10', 'closed', 'reddit'];
 
 export const DEFAULT_WIDGET_ORDER: WidgetId[] = ['clock', 'weather', 'top10', 'closed', 'reddit'];
+
+// Cap so the dock cannot grow without bound from "+ Note".
+export const MAX_NOTES = 30;

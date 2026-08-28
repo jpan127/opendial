@@ -1,16 +1,35 @@
 // Dock widget ids and order helpers. Hidden widgets stay in the saved list.
+// Note slots (`note:{uuid}`) are kept only while that note still exists;
+// missing notes are appended at the end so a new card shows up without a
+// saved order entry.
 import {
   DEFAULT_WIDGET_ORDER,
   MAX_DOCK_WIDTH,
   MIN_DOCK_WIDTH,
   WIDGET_IDS,
+  type NoteSlotId,
   type WidgetId,
 } from '@/src/types';
 
 const KNOWN = new Set<string>(WIDGET_IDS);
+const SLOT_PREFIX = 'note:';
 
-export function normalizeWidgetOrder(stored: string[]): WidgetId[] {
-  const seen = new Set<WidgetId>();
+export function isNoteSlotId(id: string): id is NoteSlotId {
+  return id.startsWith(SLOT_PREFIX) && id.length > SLOT_PREFIX.length;
+}
+
+export function noteIdFromSlot(id: string): string | null {
+  if (!isNoteSlotId(id)) return null;
+  return id.slice(SLOT_PREFIX.length);
+}
+
+export function noteSlotId(noteId: string): NoteSlotId {
+  return `${SLOT_PREFIX}${noteId}`;
+}
+
+export function normalizeWidgetOrder(stored: string[], noteIds: Iterable<string> = []): WidgetId[] {
+  const notes = new Set(noteIds);
+  const seen = new Set<string>();
   const next: WidgetId[] = [];
   for (const id of stored) {
     if (id === 'now') {
@@ -21,12 +40,26 @@ export function normalizeWidgetOrder(stored: string[]): WidgetId[] {
       }
       continue;
     }
-    if (!KNOWN.has(id) || seen.has(id as WidgetId)) continue;
-    seen.add(id as WidgetId);
+    if (isNoteSlotId(id)) {
+      const noteId = noteIdFromSlot(id);
+      // Drop slots whose note was deleted, or junk `note:` strings.
+      if (!noteId || !notes.has(noteId) || seen.has(id)) continue;
+      seen.add(id);
+      next.push(id);
+      continue;
+    }
+    if (!KNOWN.has(id) || seen.has(id)) continue;
+    seen.add(id);
     next.push(id as WidgetId);
   }
   for (const id of DEFAULT_WIDGET_ORDER) {
     if (!seen.has(id)) next.push(id);
+  }
+  for (const noteId of notes) {
+    const slot = noteSlotId(noteId);
+    if (seen.has(slot)) continue;
+    seen.add(slot);
+    next.push(slot);
   }
   return next;
 }

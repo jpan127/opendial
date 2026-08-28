@@ -1,25 +1,29 @@
 // Left dock of widget cards. Order is pointer-drag, same idea as dials.
 //
 // Visible cards follow `widgetOrder`. Hidden widgets stay in the saved
-// list so turning one back on restores its slot. Drag the right edge to
-// change dock width; cards stretch with it. The column scrolls; a
-// ghost follows the cursor after an 8px move. Inner controls stop
-// pointerdown so sort pills and similar stay clicks.
+// list so turning one back on restores its slot. Any number of note cards
+// use `note:{id}` slots. Drag the right edge to change dock width; cards
+// stretch with it. The column scrolls; a ghost follows the cursor after
+// an 8px move. Inner controls stop pointerdown so sort pills and similar
+// stay clicks.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Clock } from '@/src/components/Clock';
+import { NoteWidget } from '@/src/components/NoteWidget';
 import { RecentlyClosed } from '@/src/components/RecentlyClosed';
 import { Reddit } from '@/src/components/Reddit';
 import { Top10 } from '@/src/components/Top10';
 import { Weather } from '@/src/components/Weather';
+import { addNoteToState, removeNoteFromState } from '@/src/lib/notes';
 import { useOverlayScroll } from '@/src/lib/overlayScroll';
 import {
   clampDockWidth,
   normalizeWidgetOrder,
+  noteIdFromSlot,
   reorderVisibleWidgets,
   sameWidgetOrder,
 } from '@/src/lib/widgets';
-import { useDockWidth, useWidgetOrder } from '@/src/lib/storage';
-import type { Dial, TempUnit, WidgetId } from '@/src/types';
+import { useDockWidth, useNotes, useWidgetOrder } from '@/src/lib/storage';
+import { MAX_NOTES, type Dial, type Note, type TempUnit, type WidgetId } from '@/src/types';
 
 const DRAG_THRESHOLD_PX = 8;
 const AUTO_SCROLL_EDGE = 48;
@@ -46,16 +50,27 @@ export function WidgetDock({
   forecastDays,
   unit,
 }: Props) {
+  const [notes, setNotes] = useNotes();
+  const noteIds = useMemo(() => notes.map((item) => item.id), [notes]);
+  const notesById = useMemo(() => {
+    const map = new Map<string, Note>();
+    for (const item of notes) map.set(item.id, item);
+    return map;
+  }, [notes]);
+
   const isOn = (id: WidgetId) => {
     if (id === 'clock') return showClock;
     if (id === 'weather') return showWeather;
     if (id === 'top10') return showTop10;
     if (id === 'closed') return showRecentlyClosed;
-    return showReddit;
+    if (id === 'reddit') return showReddit;
+    // Notes have no show* toggle; the card is on iff the note still exists.
+    const noteId = noteIdFromSlot(id);
+    return Boolean(noteId && notesById.has(noteId));
   };
 
   const [storedOrder, setOrder] = useWidgetOrder();
-  const order = useMemo(() => normalizeWidgetOrder(storedOrder), [storedOrder]);
+  const order = useMemo(() => normalizeWidgetOrder(storedOrder, noteIds), [storedOrder, noteIds]);
   const visible = order.filter(isOn);
 
   const { scrolling, onScroll } = useOverlayScroll();
@@ -114,7 +129,23 @@ export function WidgetDock({
     }
     if (id === 'top10') return <Top10 dials={dials} />;
     if (id === 'closed') return <RecentlyClosed />;
-    return <Reddit />;
+    if (id === 'reddit') return <Reddit />;
+    const noteId = noteIdFromSlot(id);
+    const note = noteId ? notesById.get(noteId) : undefined;
+    if (!note) return null;
+    return (
+      <NoteWidget
+        note={note}
+        onChange={(next) => {
+          setNotes((list) => list.map((item) => (item.id === next.id ? next : item)));
+        }}
+        onDelete={() => {
+          const result = removeNoteFromState(notes, order, note.id);
+          setNotes(result.notes);
+          setOrder(result.order);
+        }}
+      />
+    );
   };
 
   return (
@@ -182,6 +213,22 @@ export function WidgetDock({
             {renderCard(id)}
           </WidgetSlot>
         ))}
+        {/* Hidden at MAX_NOTES; widget-no-drag so this is not a dock drag handle. */}
+        {notes.length < MAX_NOTES ? (
+          <button
+            type="button"
+            className="note-add widget-no-drag"
+            aria-label="Add note card"
+            onClick={() => {
+              const result = addNoteToState(notes, order);
+              if (!result) return;
+              setNotes(result.notes);
+              setOrder(result.order);
+            }}
+          >
+            + Note
+          </button>
+        ) : null}
         <div
           className="widget-dock-resize widget-no-drag"
           role="separator"

@@ -184,7 +184,8 @@ html.is-dock-resizing * {
 }
 
 .now-card.widget-card,
-.now-card.reddit-card {
+.now-card.reddit-card,
+.now-card.note-card {
   align-items: stretch;
 }
 
@@ -794,4 +795,274 @@ html.is-dock-resizing * {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Notes: same card chrome as Top 10 / Reddit. Icons overlay; they do not
+   indent the text. Body caps at 220px and scrolls inside the card. */
+
+.note-card {
+  position: relative;
+}
+
+.note-head {
+  display: flex;
+  align-items: center;
+  gap: var(--od-space-2);
+  min-width: 0;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--od-border);
+}
+
+.note-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--od-text);
+  caret-color: var(--od-text);
+  cursor: text;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* I-beam; widget-no-drag so dragging the title does not reorder the dock. */
+.note-title.widget-no-drag {
+  cursor: text;
+}
+
+.note-title::placeholder {
+  color: var(--od-text-faint);
+  font-weight: 500;
+}
+
+.note-title:focus {
+  color: var(--od-text);
+}
+
+/* X stays hidden until the header is hovered or focused. */
+.note-delete {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--od-radius-sm);
+  background: transparent;
+  color: var(--od-text-faint);
+  opacity: 0;
+}
+
+.note-head:hover .note-delete,
+.note-head:focus-within .note-delete,
+.note-delete:focus-visible {
+  opacity: 1;
+}
+
+.note-delete:hover {
+  color: var(--od-danger);
+  background: color-mix(in srgb, var(--od-danger) 12%, transparent);
+}
+
+.note-delete svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Compact card; extra lines scroll in this pane, not the dock. */
+.note-body {
+  max-height: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.note-editor {
+  position: relative;
+  min-height: 28px;
+  outline: none;
+  cursor: text;
+  caret-color: var(--od-text);
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.note-editor.is-empty::before {
+  content: 'Write a note';
+  position: absolute;
+  left: 2px;
+  top: 5px;
+  color: var(--od-text-faint);
+  pointer-events: none;
+  font-size: 0.9rem;
+}
+
+.note-row {
+  display: flex;
+  align-items: center;
+  gap: var(--od-space-2);
+  min-height: 28px;
+  padding: 1px 2px;
+  border-radius: var(--od-radius-sm);
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.note-row.is-active {
+  background: color-mix(in srgb, var(--od-text) 5%, transparent);
+}
+
+.note-bullet {
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--od-text-muted);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.note-check {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1.5px solid var(--od-text-muted);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.note-check.is-on {
+  border-color: var(--od-accent);
+  background: var(--od-accent);
+  color: var(--od-accent-text);
+}
+
+.note-check svg {
+  width: 12px;
+  height: 12px;
+}
+
+.note-line {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--od-text);
+  caret-color: var(--od-text);
+  cursor: text;
+  outline: none;
+}
+
+.note-text {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 0;
+  font-size: 0.9rem;
+  color: var(--od-text);
+  outline: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.note-line::placeholder {
+  color: var(--od-text-faint);
+}
+
+.note-row.is-done .note-text {
+  color: var(--od-text-faint);
+  text-decoration: line-through;
+}
+
+.note-type-menu {
+  position: fixed;
+  z-index: 50;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--od-border-strong);
+  border-radius: var(--od-radius-sm);
+  background: var(--od-surface);
+  box-shadow: var(--od-shadow);
+}
+
+/* Invisible bridge so the pointer can travel from the caret to the icons. */
+.note-type-menu::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 14px;
+}
+
+.note-type-menu:not(.is-below)::after {
+  top: 100%;
+}
+
+.note-type-menu.is-below::after {
+  bottom: 100%;
+}
+
+.note-type-menu button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--od-text-muted);
+}
+
+.note-type-menu button:hover {
+  background: var(--od-surface-hover);
+  color: var(--od-text);
+}
+
+.note-type-menu button.is-on {
+  background: color-mix(in srgb, var(--od-accent) 28%, transparent);
+  color: var(--od-text);
+}
+
+.note-type-menu svg {
+  width: 16px;
+  height: 16px;
+}
+
+.note-add {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px dashed var(--od-border-strong);
+  border-radius: var(--od-radius-lg);
+  background: transparent;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  color: var(--od-text-muted);
+}
+
+.note-add:hover {
+  color: var(--od-text);
+  background: color-mix(in srgb, var(--od-surface) 70%, transparent);
 }
