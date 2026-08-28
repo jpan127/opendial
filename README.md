@@ -1,6 +1,6 @@
 # OpenDial
 
-A personal Chrome new tab page: speed-dial tiles, a compact Google / ChatGPT / Gemini search bar, most-visited domains, recently closed tabs, local time, weather, a small calculator, and an optional Reddit RSS card.
+A personal Chrome new tab page: speed-dial tiles, a compact Google / ChatGPT / Gemini search bar, most-visited domains, recently closed tabs, local time, weather, a small calculator, an optional Reddit RSS card, and note cards in the left dock.
 
 This is **not** on the Chrome Web Store. Load it unpacked. All dials and settings stay in `chrome.storage.local` on your machine.
 
@@ -63,14 +63,15 @@ Other scripts:
   - Google: `google.com/search?q=`
   - ChatGPT / Gemini: OpenDial opens the site and fills the prompt box (you need to be signed in)
 - **Dials** — click a tile to open it. Ctrl/Cmd-click opens a new tab. The dashed **+** tile adds a site. Right-click a tile to edit or delete. Drag tiles to reorder. Icon choices: **Suggested** (SVGL, then Simple Icons, then the site favicon), the site’s favicon, an uploaded image, or an image URL. Suggested logos are downloaded once and stored as local PNGs. Tile size is a slider in the gear menu.
-- **Widget dock** — left column of cards (clock/weather, Top 10, recently closed, Reddit). Drag a card to reorder. Drag the dock’s right edge to change its width; cards follow. Turn cards off in the gear menu; hiding every card removes the dock. Scrollbars stay hidden until you hover or scroll, and they overlay so layout does not shift.
+- **Widget dock** — left column of cards (clock/weather, Top 10, recently closed, Reddit, notes). Drag a card to reorder. Drag the dock’s right edge to change its width; cards follow. Turn cards off in the gear menu; hiding every card removes the dock. Scrollbars stay hidden until you hover or scroll, and they overlay so layout does not shift.
+- **Notes** — **+ Note** at the bottom of the dock adds a card (up to 30). Each has a title and a body of mixed text, bullets, and checklists. Type `- ` or `* ` at the start of a line for a bullet, `[]` for a checklist. Pause on a line and a small icon bubble appears above the caret to change the line type; the square on a checklist marks it done. Drag to reorder like the other cards. Delete from the X on the card (there is no gear toggle).
 - **Top 10** — the 10 most-visited domains from the last 90 days, with visit counts. Chrome’s `topSites` list fills in if history is thin. Hosts already on the dial grid are hidden.
 - **Recently closed** — click a row to restore that tab or window. The list scrolls inside the card.
 - **Clock / Weather** — optional widgets, each its own card, toggled from the gear menu. Drag to reorder like the other dock cards. The clock shows the date, time, and timezone. Weather uses the browser location, or click it to set a city. Shows city and state/region, today’s high/low, rain chance, UV, and US AQI. A **Forecast days** slider adds the next 1–6 days. Temperature unit follows your browser locale (US → °F). Data from [Open-Meteo](https://open-meteo.com/).
 - **Reddit** — optional card. Turn it on in the gear menu, then add subreddits on the card (`Add r/subreddit`). OpenDial fetches one combined public RSS feed (`/r/a+b/hot/.rss`). Pills default on (pastel green); click one to hide that sub until you reload the page. Hot / Today / Week is on the card. The footer shows when the feed was last pulled. Refresh is disabled for 15 minutes after a successful pull so Reddit does not rate-limit you. A gear slider sets list height. The list shows every post in the pulled feed (up to 100). If Reddit rate-limits RSS, the card tries the old.reddit listing page once, or keeps the last saved posts. No Reddit login.
 - **Calculator** — the keypad icon in the top right, or **Alt+C**. Type an expression and press Enter. History is stored locally. Hide the button from the gear menu. Open/closed state still persists across new tabs.
 - **Theme** — sun/moon in the top right. Defaults to dark and persists.
-- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, widget order, tile size, greeting size, search engine, calculator visibility, whether the calculator panel was open, and Reddit settings (not the post cache).
+- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, widget order, notes, tile size, greeting size, search engine, calculator visibility, whether the calculator panel was open, and Reddit settings (not the post cache).
 
 ---
 
@@ -97,7 +98,7 @@ Change the CSS variables there (`--od-bg`, `--od-glow`, `--od-font-greeting`, `-
 
 | Permission | Why |
 |---|---|
-| `storage` / `unlimitedStorage` | Dials, theme, greeting, uploaded icons |
+| `storage` / `unlimitedStorage` | Dials, theme, greeting, uploaded icons, notes |
 | `history` | Most-visited **domains** and visit counts |
 | `topSites` | Fallback list when history is thin |
 | `sessions` | Recently closed tabs (click restores the tab) |
