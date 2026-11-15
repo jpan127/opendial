@@ -439,6 +439,28 @@ export function NoteWidget({ note, onChange, onDelete }: Props) {
     commit(blocks, cut.caretId, cut.caretOff);
   };
 
+  const onEditorCopyOrCut = (event: ClipboardEvent<HTMLDivElement>) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const span = selectionSpan(editor);
+    if (!span || span.collapsed) return;
+    const blocks = readBlocks(editor);
+    const start = blocks.findIndex((block) => block.id === span.startRow.dataset.id);
+    const end = blocks.findIndex((block) => block.id === span.endRow.dataset.id);
+    if (start < 0 || end < start) return;
+
+    const text = blocks.slice(start, end + 1).map((block, index) =>
+      block.text.slice(index === 0 ? span.startOff : 0, start + index === end ? span.endOff : undefined),
+    ).join('\n');
+    event.clipboardData.setData('text/plain', text);
+    event.preventDefault();
+    if (event.type === 'cut') {
+      pushHistory();
+      const cut = deleteBlockRange(blocks, start, span.startOff, end, span.endOff);
+      commit(cut.blocks, cut.caretId, cut.caretOff);
+    }
+  };
+
   const onEditorPaste = (event: ClipboardEvent<HTMLDivElement>) => {
     // Plain text only, one block per pasted line, same kind as the target row.
     event.preventDefault();
@@ -462,7 +484,7 @@ export function NoteWidget({ note, onChange, onDelete }: Props) {
     }
     const block = blocks[index] ?? blocks[0];
     if (!block) return;
-    const lines = pasted.replace(/\r\n/g, '\n').split('\n');
+    const lines = pasted.replace(/\r\n?/g, '\n').split('\n');
     const first = lines[0] ?? '';
     const last = lines[lines.length - 1] ?? '';
     if (lines.length === 1) {
@@ -522,6 +544,8 @@ export function NoteWidget({ note, onChange, onDelete }: Props) {
           onInput={syncFromDom}
           onBeforeInput={onEditorBeforeInput}
           onKeyDown={onEditorKey}
+          onCopy={onEditorCopyOrCut}
+          onCut={onEditorCopyOrCut}
           onPaste={onEditorPaste}
           onFocus={scheduleTypeMenu}
           onBlur={() => {
@@ -710,15 +734,23 @@ function selectionSpan(editor: HTMLElement): {
   if (!sel || sel.rangeCount === 0) return null;
   const range = sel.getRangeAt(0);
   if (!editor.contains(range.commonAncestorContainer)) return null;
-  const startRow = closestRow(range.startContainer, editor);
-  const endRow = closestRow(range.endContainer, editor);
-  if (!startRow || !endRow) return null;
+  const startAtEditor = range.startContainer === editor;
+  const endAtEditor = range.endContainer === editor;
+  const startRow = startAtEditor
+    ? editor.childNodes[range.startOffset]
+    : closestRow(range.startContainer, editor);
+  const endRow = endAtEditor
+    ? editor.childNodes[range.endOffset - 1]
+    : closestRow(range.endContainer, editor);
+  if (!(startRow instanceof HTMLElement) || !(endRow instanceof HTMLElement)) return null;
   return {
     collapsed: range.collapsed,
     startRow,
     endRow,
-    startOff: offsetAt(startRow, range.startContainer, range.startOffset),
-    endOff: offsetAt(endRow, range.endContainer, range.endOffset),
+    startOff: startAtEditor ? 0 : offsetAt(startRow, range.startContainer, range.startOffset),
+    endOff: endAtEditor
+      ? (endRow.querySelector('.note-text')?.textContent?.length ?? 0)
+      : offsetAt(endRow, range.endContainer, range.endOffset),
   };
 }
 
