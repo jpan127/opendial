@@ -80,6 +80,7 @@ export type BackupPayload = {
   showCalculator?: boolean;
   // Gear-menu toggle for the calculator button. Missing ⇒ shown.
   showCalculatorWidget?: boolean;
+  calcHistory?: CalcHistoryEntry[];
   showReddit?: boolean;
   redditSubs?: string[];
   redditLimit?: number;

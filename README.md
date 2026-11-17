@@ -71,7 +71,7 @@ Other scripts:
 - **Reddit** — optional card. Turn it on in the gear menu, then add subreddits on the card (`Add r/subreddit`). OpenDial fetches one combined public RSS feed (`/r/a+b/hot/.rss`). Pills default on (pastel green); click one to hide that sub until you reload the page. Hot / Today / Week is on the card. The footer shows when the feed was last pulled. Refresh is disabled for 15 minutes after a successful pull so Reddit does not rate-limit you. A gear slider sets list height. The list shows every post in the pulled feed (up to 100). If Reddit rate-limits RSS, the card tries the old.reddit listing page once, or keeps the last saved posts. No Reddit login.
 - **Calculator** — the keypad icon in the top right, or **Alt+C**. Type an expression and press Enter. History is stored locally. Hide the button from the gear menu. Open/closed state still persists across new tabs.
 - **Theme** — sun/moon in the top right. Defaults to dark and persists.
-- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, widget order, notes, tile size, greeting size, search engine, calculator visibility, whether the calculator panel was open, and Reddit settings (not the post cache).
+- **Backup** — the gear menu exports/imports a JSON file of dials, greeting, theme, widgets, widget order, notes, tile size, greeting size, search engine, calculator visibility, whether the calculator panel was open, calculator history, and Reddit settings. Chrome supplies browsing history and recently closed tabs separately.
 
 ---
 

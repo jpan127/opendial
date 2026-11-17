@@ -1,7 +1,7 @@
-// User-facing JSON backup. Does not include weather cache, logo catalogs,
-// Reddit post cache, or calc history.
+// User-facing JSON backup of OpenDial preferences and saved user state.
 import type {
   BackupPayload,
+  CalcHistoryEntry,
   Dial,
   Greeting,
   RedditSort,
@@ -42,6 +42,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     showRecentlyClosed,
     showCalculator,
     showCalculatorWidget,
+    calcHistory,
     showReddit,
     redditSubs,
     redditLimit,
@@ -67,6 +68,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     getLocal<boolean>(STORAGE_KEYS.showRecentlyClosed, true),
     getLocal<boolean>(STORAGE_KEYS.showCalculator, false),
     getLocal<boolean>(STORAGE_KEYS.showCalculatorWidget, true),
+    getLocal<CalcHistoryEntry[]>(STORAGE_KEYS.calcHistory, []),
     getLocal<boolean>(STORAGE_KEYS.showReddit, false),
     getLocal<string[]>(STORAGE_KEYS.redditSubs, []),
     getLocal<number>(STORAGE_KEYS.redditLimit, DEFAULT_REDDIT_LIMIT),
@@ -97,6 +99,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     showRecentlyClosed,
     showCalculator,
     showCalculatorWidget,
+    calcHistory,
     showReddit,
     redditSubs,
     redditLimit,
@@ -123,7 +126,15 @@ export async function importBackup(payload: BackupPayload): Promise<void> {
     payload.widgetOrder ?? DEFAULT_WIDGET_ORDER,
     notes.map((note) => note.id),
   );
+  const history = payload.calcHistory;
+  if (history !== undefined && (!Array.isArray(history) || history.some((entry) =>
+    !entry || typeof entry.id !== 'string' || typeof entry.input !== 'string' ||
+    typeof entry.output !== 'string' || !Number.isFinite(entry.at)
+  ))) {
+    throw new Error('Invalid calculator history');
+  }
   await Promise.all([
+    ...(history === undefined ? [] : [setLocal(STORAGE_KEYS.calcHistory, history)]),
     setLocal(STORAGE_KEYS.theme, payload.theme),
     setLocal(STORAGE_KEYS.greeting, payload.greeting),
     setLocal(STORAGE_KEYS.engine, payload.engine),
